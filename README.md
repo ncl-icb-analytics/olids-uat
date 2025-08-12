@@ -71,31 +71,31 @@ README.md
 ### Setup
 
 1. **Clone Repository**
-   ```bash
+  ```bash
    git clone https://github.com/ncl-icb-analytics/olids-uat
    cd olids-uat
-   ```
+  ```
 
 2. **Create Virtual Environment**
-   ```bash
+  ```bash
    python -m venv venv && venv\Scripts\activate
-   ```
+  ```
 
 3. **Install Framework**
-   ```bash
+  ```bash
    pip install -e .
-   ```
+  ```
 
 4. **Install and Configure Snow CLI**
    
    **Install Snow CLI:**
-   ```bash
+  ```bash
    # Install Snow CLI (requires Python 3.8+)
    pip install snowflake-cli-labs
    
    # Verify installation
    snow --version
-   ```
+  ```
    
 **Configure Snow CLI Connection:**
    ```bash
@@ -132,17 +132,17 @@ README.md
    ```
 
 5. **Configure OLIDS Environment**
-   ```bash
+  ```bash
    # Copy environment template
    cp config/environments/template.yml config/environments/uat.yml
    
    # Edit the configuration file with your environment details
    # Update: databases, connection details, role, warehouse
    nano config/environments/uat.yml  # or use your preferred editor
-   ```
+  ```
    
    **Example environment configuration:**
-   ```yaml
+  ```yaml
    description: "OLIDS UAT Environment"
     databases:
       source: "Data_Store_OLIDS_UAT"
@@ -153,10 +153,10 @@ README.md
      account: "abc12345"
      role: "YOUR_USER_ROLE"
      warehouse: "YOUR_WAREHOUSE"
-   ```
+  ```
 
 6. **Verify Setup**
-   ```bash
+  ```bash
 # Test framework can connect to Snowflake
 olids-test config show --environment uat
     
@@ -165,7 +165,7 @@ olids-test run status
     
 # Run a quick test to verify everything works
 olids-test run test empty_tables
-   ```
+  ```
 
 ## 📖 Usage
 
