@@ -17,6 +17,7 @@ The OLIDS UAT Testing Framework provides validation of healthcare data quality a
 
 - YAML-driven configuration
 - Rich CLI with progress and colour
+- Environment switching
 - Parallel execution
 - Table/JSON/CSV outputs
 - Results include totals, failures, success rate, and timing
