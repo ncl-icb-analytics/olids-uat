@@ -17,6 +17,7 @@ The OLIDS UAT Testing Framework provides validation of healthcare data quality a
 - Rich CLI with progress and colour
 - Parallel execution
 - Table/JSON/CSV outputs
+- Results include totals, failures, success rate, and timing
 
 ## 📁 Project Structure
 
@@ -96,7 +97,7 @@ README.md
    snow --version
    ```
    
-**Configure Snow CLI Connection (summary):**
+**Configure Snow CLI Connection:**
    ```bash
    # Add a new connection (interactive setup)
    snow connection add
@@ -186,26 +187,27 @@ olids-test run status
 olids-test config show
 ```
 
-#### Running Tests (common)
+#### Running Tests
 
 ```bash
 # Run individual test
 olids-test run test empty_tables
+
+# Run all tests
+olids-test run all
     
 # Run with detailed pass information
 olids-test run test concept_mapping --show-passes
     
 # Run test suite
 olids-test run suite data_quality
-    
-# Run all tests
-olids-test run all
-    
+
 # Run with parallel execution
 olids-test run all --parallel
     
 # Export results
-olids-test run test person_patterns --output json --export results.json
+olids-test run test all --output json --export results.json
+olids-test run test all --output csv --export results.csv
 ```
 
 #### Output Formats
@@ -227,7 +229,7 @@ python -m olids_testing.cli.main config environments
 python -m olids_testing.cli.main config show --environment uat
 ```
 
-## 🧪 Test Categories (summary)
+## 🧪 Test Categories
 
 - **Data Quality**: Empty tables, all-NULL columns, column completeness
 - **Referential Integrity**: Foreign key relationship validation across core domains
@@ -329,21 +331,6 @@ Top-level YAMLs define mappings and rules (see files in `config/`).
        - my_test
    ```
 
-### Running Tests in Development
-
-```bash
-# Run specific test during development
-olids-test run test my_test --show-passes
-
-# Validate configuration
-olids-test config validate
-```
-
-## 📈 Reporting
-
-- Results include totals, failures, success rate, and timing
-- Use exports for further analysis (see Tips above)
-
 ## 🔐 Security & Authentication
 
 - **SSO Integration**: Uses Snowflake SSO through Snow CLI
@@ -401,24 +388,6 @@ olids-test config show --environment uat
 3. **Documentation**: Include comprehensive test documentation
 4. **Validation**: Test against existing functionality
 5. **Update Documentation**: Update README for new features
-
-### Development Setup
-
-```bash
-# Clone and setup development environment
-git clone https://github.com/ncl-icb-analytics/olids-uat
-cd olids-uat
-python -m venv venv
-source venv/bin/activate  # Unix/Mac
-# or venv\Scripts\activate  # Windows
-
-# Install in development mode
-pip install -e .
-
-# Copy environment template for development
-cp config/environments/template.yml config/environments/dev.yml
-# Edit dev.yml with your development environment details
-```
 
 The `config/environments/template.yml` serves as the reference for creating environment-specific configurations.
 
