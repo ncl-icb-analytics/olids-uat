@@ -8,6 +8,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
+from rich import box
 
 from olids_testing.core.config import Config, EnvironmentConfig
 from olids_testing.core.test_base import TestResult
@@ -55,7 +56,7 @@ def display_config(config: Config, env_config: EnvironmentConfig, environment: s
         return
     
     # Table format
-    table = Table(title=f"Configuration - {environment.upper()}")
+    table = Table(title=f"Configuration - {environment.upper()}", box=box.SIMPLE_HEAD)
     table.add_column("Category", style="cyan", no_wrap=True)
     table.add_column("Setting", style="magenta")
     table.add_column("Value", style="green")
@@ -102,7 +103,7 @@ def display_validation_results(config_ok: bool, connection_ok: bool, config: Con
         config: Configuration manager
         environment: Environment name
     """
-    table = Table(title="Validation Results")
+    table = Table(title="Validation Results", box=box.SIMPLE_HEAD)
     table.add_column("Component", style="cyan", no_wrap=True)
     table.add_column("Status", style="bold")
     table.add_column("Details", style="dim")
@@ -158,7 +159,7 @@ def display_status(connection_status: Dict, test_count: int, suite_count: int, e
         return
     
     # Table format
-    table = Table(title=f"Test Runner Status - {environment.upper()}")
+    table = Table(title=f"Test Runner Status - {environment.upper()}", box=box.SIMPLE_HEAD)
     table.add_column("Component", style="cyan", no_wrap=True)
     table.add_column("Status", style="bold")
     table.add_column("Details", style="dim")
@@ -221,19 +222,72 @@ def display_test_list(config: Config, output_format: str = "table"):
         console.print(json.dumps(test_data, indent=2))
         return
     
-    # Table format for test suites
-    suite_table = Table(title="Available Test Suites")
+    # Table format for test suites - now the only thing we show
+    suite_table = Table(title="Available Test Suites", box=box.SIMPLE_HEAD)
     suite_table.add_column("Name", style="cyan", no_wrap=True)
     suite_table.add_column("Description", style="white")
-    suite_table.add_column("Type", style="magenta")
+    suite_table.add_column("Data Tests", style="magenta")
     
-    for suite_name in config.list_test_suites():
+    # Calculate total data tests for the "all" suite
+    total_all_tests = 0
+    suite_data = {}  # Store calculated data for reuse
+    
+    for suite_name in sorted(config.list_test_suites()):
         try:
             suite_config = config.get_test_suite(suite_name)
+            
             if suite_config.categories:
-                type_info = f"Categories: {', '.join(suite_config.categories)}"
+                # For "all" suite, calculate total across all other suites
+                for other_suite_name in config.list_test_suites():
+                    if other_suite_name == suite_name:  # Skip self
+                        continue
+                    try:
+                        other_suite_config = config.get_test_suite(other_suite_name)
+                        if other_suite_config.tests:
+                            suite_total = 0
+                            for test_name in other_suite_config.tests:
+                                try:
+                                    test_config = config.get_test_config(test_name)
+                                    if test_config.relationships_count:
+                                        suite_total += test_config.relationships_count
+                                    elif test_config.concept_columns:
+                                        suite_total += test_config.concept_columns
+                                    elif test_config.pattern_count:
+                                        suite_total += test_config.pattern_count
+                                    elif test_config.test_count:
+                                        suite_total += test_config.test_count
+                                    else:
+                                        suite_total += 1
+                                except:
+                                    suite_total += 1
+                            total_all_tests += suite_total
+                    except:
+                        continue
+                type_info = f"All tests ({total_all_tests} data tests)"
             elif suite_config.tests:
-                type_info = f"Tests: {len(suite_config.tests)} individual"
+                # Calculate total sub-tests across all tests in the suite
+                total_subtests = 0
+                for test_name in suite_config.tests:
+                    try:
+                        test_config = config.get_test_config(test_name)
+                        # Look for metadata that indicates number of sub-tests
+                        if test_config.relationships_count:
+                            total_subtests += test_config.relationships_count
+                        elif test_config.concept_columns:
+                            total_subtests += test_config.concept_columns
+                        elif test_config.pattern_count:
+                            total_subtests += test_config.pattern_count
+                        elif test_config.test_count:
+                            total_subtests += test_config.test_count
+                        else:
+                            total_subtests += 1  # Default to 1 if no metadata
+                    except:
+                        total_subtests += 1  # Fallback
+                
+                if total_subtests > len(suite_config.tests):
+                    type_info = f"{total_subtests} data tests"
+                else:
+                    type_info = f"{len(suite_config.tests)} data tests"
             else:
                 type_info = "Empty suite"
             
@@ -242,34 +296,6 @@ def display_test_list(config: Config, output_format: str = "table"):
             suite_table.add_row(suite_name, f"[red]Error: {e}[/red]", "")
     
     console.print(suite_table)
-    console.print("")
-    
-    # Table format for individual tests
-    test_table = Table(title="Available Individual Tests")
-    test_table.add_column("Name", style="cyan", no_wrap=True)
-    test_table.add_column("Description", style="white")
-    test_table.add_column("Priority", style="bold")
-    test_table.add_column("Timeout", style="dim")
-    
-    for test_name in sorted(config.list_tests()):
-        try:
-            test_config = config.get_test_config(test_name)
-            
-            priority_color = {
-                "low": "bright_black",
-                "medium": "yellow",
-                "high": "orange1", 
-                "critical": "red"
-            }.get(test_config.priority, "white")
-            
-            priority_text = f"[{priority_color}]{test_config.priority.upper()}[/{priority_color}]"
-            timeout_text = f"{test_config.timeout}s"
-            
-            test_table.add_row(test_name, test_config.description, priority_text, timeout_text)
-        except Exception as e:
-            test_table.add_row(test_name, f"[red]Error: {e}[/red]", "", "")
-    
-    console.print(test_table)
 
 
 def display_test_results(results: List[TestResult], output_format: str = "table", export_file: Optional[Path] = None, show_passes: bool = False):
@@ -360,13 +386,33 @@ def _display_results_summary(results: List[TestResult]):
     total_subchecks = sum(r.total_tested for r in results if r.total_tested > 0)
     failed_subchecks = sum(r.failed_records for r in results if r.failed_records > 0)
     
+    # Determine overall status
+    overall_pass = summary['failed'] == 0
+    
     summary_text = Text()
+    
+    # Big ASCII art PASS/FAIL
+    if overall_pass:
+        summary_text.append("████████╗  ███████╗  ███████╗  ███████╗   \n", style="bold green")
+        summary_text.append("██╔══██║  ██╔══██║  ██╔════╝  ██╔════╝   \n", style="bold green")
+        summary_text.append("████████║  ███████║  ███████╗  ███████╗   \n", style="bold green")
+        summary_text.append("██╔═══╝   ██╔══██║       ██║       ██║   \n", style="bold green")
+        summary_text.append("██║       ██║  ██║  ███████║  ███████║   \n", style="bold green")
+        summary_text.append("╚═╝       ╚═╝  ╚═╝  ╚══════╝  ╚══════╝   \n\n", style="bold green")
+    else:
+        summary_text.append("███████╗   ██████╗   ██╗   ██╗        \n", style="bold red")
+        summary_text.append("██╔════╝  ██╔══██╗   ██║   ██║        \n", style="bold red")
+        summary_text.append("█████╗    ███████║   ██║   ██║        \n", style="bold red")
+        summary_text.append("██╔══╝    ██╔══██║   ██║   ██║        \n", style="bold red")
+        summary_text.append("██║       ██║  ██║   ██║   ███████╗   \n", style="bold red")
+        summary_text.append("╚═╝       ╚═╝  ╚═╝   ╚═╝   ╚══════╝   \n\n", style="bold red")
+    
     summary_text.append("Test Results Summary\n", style="bold blue")
-    summary_text.append(f"Total Tests: {summary['total_tests']}\n")
+    summary_text.append(f"Test Suites: {summary['total_tests']}\n")
     
     # If we have sub-checks, show them too
     if total_subchecks > 0:
-        summary_text.append(f"Total Checks: {total_subchecks} ", style="dim")
+        summary_text.append(f"Data Tests: {total_subchecks} ", style="dim")
         summary_text.append(f"({failed_subchecks} failed)\n", style="dim red")
     
     summary_text.append(f"Passed: {summary['passed']}\n", style="green")
@@ -374,17 +420,22 @@ def _display_results_summary(results: List[TestResult]):
     summary_text.append(f"Success Rate: {summary['success_rate']:.1f}%\n", 
                        style="green" if summary['success_rate'] >= 90 else "yellow" if summary['success_rate'] >= 70 else "red")
     
-    panel = Panel(summary_text, border_style="blue")
+    # Use bordered panel to make summary stand out as the key information  
+    # Set width to accommodate ASCII art without being too wide
+    # Match border color to overall result
+    border_color = "green" if overall_pass else "red"
+    panel = Panel(summary_text, border_style=border_color, box=box.ROUNDED, width=78)
     console.print(panel)
     console.print("")
 
 
 def _display_results_table(results: List[TestResult]):
     """Display results in table format."""
-    table = Table(title="Detailed Test Results")
-    table.add_column("Test Name", style="cyan", no_wrap=True)
+    # Use simpler box style for better Windows compatibility
+    table = Table(title="Detailed Test Suite Results", box=box.SIMPLE_HEAD, border_style="bright_black")
+    table.add_column("Test Suite", style="cyan", no_wrap=True)
     table.add_column("Status", style="bold")
-    table.add_column("Total", justify="right", style="blue")
+    table.add_column("Data Tests", justify="right", style="blue")
     table.add_column("Failed", justify="right", style="red")
     table.add_column("Success %", justify="right", style="green")
     table.add_column("Time (s)", justify="right", style="dim")

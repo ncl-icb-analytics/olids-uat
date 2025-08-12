@@ -43,15 +43,10 @@ class TestRunner:
     def _load_tests(self) -> None:
         """Load tests from test modules."""
         try:
-            from ..tests import TEST_REGISTRY, INDIVIDUAL_TEST_REGISTRY, TEST_CATEGORIES
+            from ..tests import TEST_REGISTRY, TEST_CATEGORIES
             
-            # Register main tests (for "run all")
+            # Register all tests
             for test_name, test_class in TEST_REGISTRY.items():
-                test_instance = test_class()
-                self.register_test(test_instance)
-            
-            # Register individual tests (for specific execution)
-            for test_name, test_class in INDIVIDUAL_TEST_REGISTRY.items():
                 test_instance = test_class()
                 self.register_test(test_instance)
             

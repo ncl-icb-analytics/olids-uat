@@ -102,10 +102,9 @@ class PersonPatternTest(BaseTest):
                     if not test_result['passed']:
                         failed_tests += 1
             
-            # Clear progress line
-            completion_msg = f"Completed {total_tests} person pattern tests"
-            spaces = " " * max(0, 80 - len(completion_msg))
-            sys.stdout.write(f"\r  {completion_msg}{spaces}")
+            # Clear progress line completely
+            clear_line = " " * 120  # Clear up to 120 characters
+            sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
             sys.stdout.flush()
             
             # Build failure details

@@ -18,11 +18,15 @@ schemas:
   tests: "TESTS"                   # Test results schema
 
 # Snowflake connection details
+# Most connection settings are defined in your Snow CLI connection
 connection:
-  account: "your-snowflake-account"          # e.g., "abc12345.eu-west-1"
-  host: "your-snowflake-account.snowflakecomputing.com"
-  role: "YOUR_ROLE"                          # e.g., "OLIDS_USER_ROLE"
-  warehouse: "YOUR_WAREHOUSE"                # e.g., "OLIDS_WAREHOUSE"
+  snow_cli_connection: "your-connection-name"  # Snow CLI connection name (leave empty to use default)
+  
+  # Optional overrides (only needed if different from Snow CLI connection):
+  # account: "your-snowflake-account"         # e.g., "abc12345.eu-west-1"
+  # role: "YOUR_ROLE"                         # e.g., "OLIDS_USER_ROLE"
+  # warehouse: "YOUR_WAREHOUSE"               # e.g., "OLIDS_WAREHOUSE"
+  # host: "your-account.snowflakecomputing.com"  # For display purposes only
 
 # Execution settings
 execution:
@@ -45,5 +49,6 @@ execution:
 #    - your-snowflake-account: Your Snowflake account identifier
 #    - YOUR_ROLE: Your Snowflake role with appropriate permissions
 #    - YOUR_WAREHOUSE: Your Snowflake warehouse for running queries
+#    - your-connection-name: (Optional) Your Snow CLI connection name for this environment
 # 3. Ensure your Snow CLI is configured with matching credentials
 # 4. Test connection: python -m olids_testing.cli.main config show --environment your-env

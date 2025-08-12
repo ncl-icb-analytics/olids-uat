@@ -5,36 +5,39 @@ test_suites:
     categories:
       - referential_integrity
       - concept_mapping
-      - business_rules
-      - data_quality
+      - person_patterns
+      - all_null_columns
+      - empty_tables
+      - column_completeness
     
   referential_integrity:
-    description: "Test foreign key relationships between tables"
+    description: "Validate all foreign key relationships in OLIDS database"
     tests:
-      - patient_relationships
-      - person_relationships
-      - appointment_relationships
+      - referential_integrity
       
   concept_mapping:
     description: "Validate concept mapping chains and terminology"
-    tests: []
-      # Will be populated as tests are migrated:
-      # - terminology_validation
-      # - snomed_mapping
-      # - concept_completeness
+    tests:
+      - concept_mapping
       
-  business_rules:
-    description: "Test business logic and data patterns"
-    tests: []
-      # Will be populated as tests are migrated:
-      # - patient_validation
-      # - person_validation
-      # - clinical_validation
+  person_patterns:
+    description: "Validate person/patient data patterns and business rules"
+    tests:
+      - person_patterns
       
-  data_quality:
-    description: "Check data completeness and consistency"
+  all_null_columns:
+    description: "Identify columns with 100% NULL values across all tables"
     tests:
       - all_null_columns
+      
+  empty_tables:
+    description: "Identify tables with zero rows"
+    tests:
+      - empty_tables
+      
+  column_completeness:
+    description: "Check completeness rates for critical columns"
+    tests:
       - column_completeness
 
 # Individual test configurations
@@ -42,71 +45,40 @@ test_config:
   
   # Data Quality Tests
   all_null_columns:
-    description: "Identify columns with 100% NULL values"
-    timeout: 60
+    description: "Identify columns with 100% NULL values across all tables"
+    timeout: 300
     priority: high
+    test_count: 710  # Based on actual test output showing 710 columns checked
+    
+  empty_tables:
+    description: "Identify tables with zero rows"
+    timeout: 180
+    priority: high
+    test_count: 28   # Based on actual test output showing 28 tables checked
     
   column_completeness:
     description: "Check completeness rates for critical columns"
-    timeout: 120
+    timeout: 300
     priority: high
-    
-  temporal_validation:
-    description: "Validate date/time ranges and lds_start_date_time"
-    timeout: 90
-    priority: medium
-    
-  episode_analysis:
-    description: "Analyze patient registration coverage and missing episodes"
-    timeout: 120
-    priority: high
+    test_count: 6    # Based on actual test output showing 6 completeness checks
     
   # Referential Integrity Tests  
-  patient_relationships:
-    description: "Validate patient foreign key relationships"
-    timeout: 180
+  referential_integrity:
+    description: "Validates all 85 foreign key relationships in OLIDS database"
+    timeout: 600
     priority: critical
-    relationships_count: 5
-    
-  person_relationships:
-    description: "Validate person foreign key relationships"
-    timeout: 150
-    priority: critical
-    relationships_count: 4
-    
-  appointment_relationships:
-    description: "Validate appointment foreign key relationships"
-    timeout: 120
-    priority: high
-    relationships_count: 3
-    
-  clinical_relationships:
-    description: "Validate clinical data foreign keys"
-    timeout: 300
-    priority: critical
-    relationships_count: 45
+    relationships_count: 85
     
   # Concept Mapping Tests
-  terminology_validation:
-    description: "Test CONCEPT_MAP -> CONCEPT chains"
+  concept_mapping:
+    description: "Validates concept ID mappings through CONCEPT_MAP to CONCEPT chains"
     timeout: 240
     priority: critical
     concept_columns: 28
     
-  snomed_mapping:
-    description: "Analyze SNOMED Description -> Concept mapping rates"
-    timeout: 180
-    priority: high
-    
   # Business Rules Tests
-  patient_validation:
-    description: "Patient data integrity (NHS numbers, dates, addresses)"
-    timeout: 150
+  person_patterns:
+    description: "Validates person/patient data patterns and business rules"
+    timeout: 300
     priority: critical
-    test_count: 21
-    
-  person_validation:
-    description: "Person records and patient-person relationships"
-    timeout: 120
-    priority: critical
-    test_count: 20
+    pattern_count: 13

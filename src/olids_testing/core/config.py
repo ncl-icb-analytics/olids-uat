@@ -27,10 +27,11 @@ class SchemaConfig(BaseModel):
 
 class ConnectionConfig(BaseModel):
     """Snowflake connection configuration."""
-    account: str = Field(..., description="Snowflake account")
-    host: str = Field(..., description="Snowflake host")
-    role: str = Field(..., description="Snowflake role")
-    warehouse: str = Field(..., description="Snowflake warehouse")
+    account: Optional[str] = Field(None, description="Snowflake account (optional if using Snow CLI connection)")
+    host: Optional[str] = Field(None, description="Snowflake host (for display purposes)")
+    role: Optional[str] = Field(None, description="Snowflake role (optional if using Snow CLI connection)")
+    warehouse: Optional[str] = Field(None, description="Snowflake warehouse (optional if using Snow CLI connection)")
+    snow_cli_connection: Optional[str] = Field(None, description="Snow CLI connection name (uses default connection if not specified)")
 
 
 class ExecutionConfig(BaseModel):
@@ -78,6 +79,15 @@ class TestConfig(BaseModel):
     description: str = Field(..., description="Test description")
     timeout: int = Field(60, description="Test timeout in seconds")
     priority: str = Field("medium", description="Test priority")
+    
+    # Optional test metadata fields
+    relationships_count: Optional[int] = Field(None, description="Number of relationships tested")
+    concept_columns: Optional[int] = Field(None, description="Number of concept columns tested")
+    pattern_count: Optional[int] = Field(None, description="Number of patterns tested")
+    test_count: Optional[int] = Field(None, description="Number of sub-tests")
+    
+    class Config:
+        extra = "allow"  # Allow additional fields not defined in the model
     
     @validator('priority')
     def priority_must_be_valid(cls, v):

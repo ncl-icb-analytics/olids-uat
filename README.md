@@ -2,7 +2,7 @@
 
 A scalable testing framework for OLIDS (One London Integrated Data Set) User Acceptance Testing (UAT) with a rich CLI.
 
-<img width="2122" height="1184" alt="image" src="https://github.com/user-attachments/assets/5ea35d8f-fe0e-4458-b6b4-f014b3e34079" />
+<img width="1324" height="1382" alt="image" src="https://github.com/user-attachments/assets/930eab9e-dee5-4dde-9f2d-5ee749c22ea8" />
 
 ## 📋 Overview
 
@@ -65,9 +65,9 @@ README.md
 ## 🛠️ Technology Stack
 
 ### Core Technologies
-- **Python 3.10+**: Modern Python for type safety and performance
+- **Python 3.10+**: Python
 - **Snowflake Snowpark** (v1.33.0+): Native Python API for Snowflake data processing
-- **Snow CLI** (v3.10.0+): Snowflake's command-line tool for authentication and deployment
+- **Snow CLI** (v3.10.0+): Snowflake's command-line tool to run SQL against snowflake
 - **Click** (v8.1.8): Command-line interface framework for building the CLI
 - **Rich** (v14.0.0): Terminal formatting library for beautiful console output
 
@@ -126,7 +126,7 @@ README.md
    snow connection add
    
    # You'll be prompted for:
-   # - Connection name (e.g., "olids-uat" - although you can use any name)
+   # - Connection name (e.g., "olids-uat", "olids-dev", "olids-prod")
    # - Account identifier (e.g., "abc12345")
    # - Username
    # - Authentication method (recommend: SSO/browser-based)
@@ -172,97 +172,111 @@ README.md
       results: "DATA_LAB_OLIDS_UAT"
       dictionary: "Dictionary"
    connection:
-     account: "abc12345"
-     role: "YOUR_USER_ROLE"
-     warehouse: "YOUR_WAREHOUSE"
+     snow_cli_connection: "olids-uat"  # Snow CLI connection name
+     # Note: account, role, warehouse are defined in Snow CLI connection
   ```
 
-6. **Verify Setup**
-  ```bash
-# Test framework can connect to Snowflake
-olids-test config show --environment uat
-    
-# Run a simple status check
-olids-test run status
-    
-# Run a quick test to verify everything works
-olids-test run test empty_tables
-  ```
+## 🚀 Getting Started
 
-## 📖 Usage
+### Initial Setup & Verification
 
-### Command Line Interface
-
-#### Basic Commands
+After installation, follow these steps to get up and running:
 
 ```bash
-# Show framework information
-olids-test info
-    
-# List available tests
+# 1. Display the interactive quick start guide
+olids-test quickstart
+
+# 2. Validate your environment setup
+olids-test validate
+
+# 3. View available test suites
 olids-test list-tests
-    
-# Check environment status  
-olids-test run status
-    
-# Show configuration
-olids-test config show
+
+# 4. Run a quick test to verify everything works
+olids-test run suite empty_tables
 ```
 
-#### Running Tests
+### Environment Management
+
+The framework supports multiple environments (dev, uat, prod):
 
 ```bash
-# Run individual test
-olids-test run test empty_tables
+# Switch to different environment (recommended approach)
+olids-test switch dev
+olids-test switch uat
+olids-test switch prod
 
-# Run all tests
-olids-test run all
-    
-# Run with detailed pass information
-olids-test run test concept_mapping --show-passes
-    
-# Run test suite
-olids-test run suite data_quality
+# Check current environment 
+olids-test info
 
-# Run with parallel execution
-olids-test run all --parallel
-    
-# Export results
-olids-test run test all --output json --export results.json
-olids-test run test all --output csv --export results.csv
+# Alternative: Use environment flags for one-off commands
+olids-test run all -e dev
 ```
 
-#### Output Formats
+### Common Workflows
 
-- **Table** (default): Rich formatted tables with color coding
-- **JSON**: Structured data for programmatic analysis
-- **CSV**: Comma-separated values for spreadsheet import
+**Daily Testing:**
+```bash
+olids-test switch uat           # Set environment
+olids-test validate             # Check setup
+olids-test run all              # Run all validations
+```
 
-### Configuration Management (common)
+**Investigating Issues:**
+```bash
+olids-test run suite referential_integrity --show-passes
+ls -la sql_logs/               # Review SQL queries executed
+```
+
+**Environment Comparison:**
+```bash
+olids-test switch dev && olids-test run all --export dev_results.json
+olids-test switch uat && olids-test run all --export uat_results.json
+olids-test switch prod && olids-test run all --export prod_results.json
+```
+
+## 📖 Command Reference
+
+### Core Commands
 
 ```bash
-# Validate configuration files
-python -m olids_testing.cli.main config validate
+# Environment management
+olids-test switch dev               # Switch environment
+olids-test info                     # Show current environment
+olids-test validate                 # Check setup
 
-# List environments
-python -m olids_testing.cli.main config environments
+# Test execution
+olids-test list-tests               # View available test suites
+olids-test run all                  # Run all test suites
+olids-test run suite referential_integrity   # Run specific suite
+olids-test run suite all_null_columns --show-passes  # With detailed output
 
-# Show specific environment
-python -m olids_testing.cli.main config show --environment uat
+# Configuration
+olids-test config show              # View current config
+olids-test config validate         # Validate config files
 ```
 
-## 🧪 Test Categories
+### Test Suites Available
 
-- **Data Quality**: Empty tables, all-NULL columns, column completeness
-- **Referential Integrity**: Foreign key relationship validation across core domains
-- **Concept Mapping**: CONCEPT_MAP → CONCEPT chain validation and display integrity
-- **Person Patterns**: Business-rule validations (identity, registrations, dates)
+| Suite | Data Tests | Description |
+|-------|------------|-------------|
+| `referential_integrity` | 85 | Foreign key relationship validation |
+| `concept_mapping` | 28 | Terminology mapping validation |  
+| `person_patterns` | 13 | Business rule validation |
+| `all_null_columns` | 710 | NULL column detection |
+| `empty_tables` | 28 | Empty table detection |
+| `column_completeness` | 6 | Column completeness validation |
 
-## 📊 Tips
+### Export & Analysis
 
-- Use `--show-passes` to include details of successful checks
-- Speed up runs with `--parallel`
-- Export results via `--output json|csv --export <file>`
+```bash
+# Export results for analysis
+olids-test run all --output json --export results.json
+olids-test run all --output csv --export results.csv
+
+# Review SQL queries executed
+ls -la sql_logs/
+```
 
 ## ⚙️ Configuration
 
@@ -282,11 +296,27 @@ schemas:
   masked: "OLIDS_MASKED"
   terminology: "OLIDS_TERMINOLOGY"
   tests: "TESTS"
+connection:
+  snow_cli_connection: "olids-uat"  # Snow CLI connection name
+  # Note: account, role, warehouse are defined in Snow CLI connection
 execution:
   parallel_workers: 4
   timeout_seconds: 300
   retry_attempts: 3
 ```
+
+**Snow CLI Connection Configuration:**
+- **Automatic Default Detection**: Framework automatically uses your default Snow CLI connection
+- **Environment-Specific Connections**: Optionally specify `snow_cli_connection` per environment
+- **Centralized Management**: All connection details managed through Snow CLI (account, role, warehouse, authentication)
+- **Minimal Configuration**: Environment configs only need databases and schemas - connection details are automatic
+- **Optional Overrides**: Available if needed (account, role, warehouse, host)
+
+**Connection Priority:**
+1. Environment-specific `snow_cli_connection` field (if specified)
+2. `SNOWFLAKE_CONNECTION` environment variable (if set)
+3. Default Snow CLI connection (automatically detected)
+4. First available Snow CLI connection (fallback)
 
 ### Test Configuration
 

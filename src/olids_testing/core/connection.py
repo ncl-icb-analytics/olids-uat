@@ -32,35 +32,63 @@ class SnowflakeConnection:
         Raises:
             SnowparkSessionException: If connection fails
         """
-        connection_params = {
-            "account": self.env_config.connection.account,
-            "role": self.env_config.connection.role,
-            "warehouse": self.env_config.connection.warehouse,
-        }
+        connection_params = {}
+        
+        # Only add environment config values if they exist
+        if self.env_config.connection.account:
+            connection_params["account"] = self.env_config.connection.account
+        if self.env_config.connection.role:
+            connection_params["role"] = self.env_config.connection.role
+        if self.env_config.connection.warehouse:
+            connection_params["warehouse"] = self.env_config.connection.warehouse
         
         # Use Snow CLI connection if available
         try:
-            from snowflake.cli.plugins.connection import ConnectionManager
+            from snowflake.cli._app.snow_connector import get_connection_dict
+            import subprocess
+            import json
             
-            # Try to get connection from Snow CLI configuration
-            connection_name = os.getenv("SNOWFLAKE_CONNECTION", "default")
-            conn_mgr = ConnectionManager()
+            # Use environment-specific connection name if specified, otherwise fallback to env var or find default
+            connection_name = (
+                self.env_config.connection.snow_cli_connection or 
+                os.getenv("SNOWFLAKE_CONNECTION")
+            )
             
-            # Get connection configuration from Snow CLI
-            cli_connections = conn_mgr.list_connections()
-            if connection_name in cli_connections:
-                cli_conn = cli_connections[connection_name]
+            # If no specific connection specified, find the default Snow CLI connection
+            if not connection_name:
+                try:
+                    result = subprocess.run(['snow', 'connection', 'list', '--format', 'json'], 
+                                          capture_output=True, text=True, check=True)
+                    connections = json.loads(result.stdout)
+                    
+                    # Find default connection
+                    for conn in connections:
+                        if conn.get('is_default', False):
+                            connection_name = conn['connection_name']
+                            break
+                    
+                    # If no default found, use the first available connection
+                    if not connection_name and connections:
+                        connection_name = connections[0]['connection_name']
+                        
+                except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError):
+                    # Fallback: if Snow CLI commands fail, we'll handle it in the except block below
+                    pass
+            
+            if connection_name:
+                # Get connection configuration from Snow CLI
+                cli_conn = get_connection_dict(connection_name)
                 
                 # Use Snow CLI connection parameters
                 connection_params.update({
-                    "account": cli_conn.get("account", connection_params["account"]),
+                    "account": cli_conn.get("account", connection_params.get("account")),
                     "user": cli_conn.get("user"),
                     "authenticator": cli_conn.get("authenticator", "externalbrowser"),  # Default to SSO
-                    "role": cli_conn.get("role", connection_params["role"]),
-                    "warehouse": cli_conn.get("warehouse", connection_params["warehouse"]),
+                    "role": cli_conn.get("role", connection_params.get("role")),
+                    "warehouse": cli_conn.get("warehouse", connection_params.get("warehouse")),
                 })
             else:
-                # Fallback to SSO if no Snow CLI connection found
+                # No Snow CLI connection found, fallback to SSO
                 connection_params["authenticator"] = "externalbrowser"
                 
         except ImportError:
@@ -135,7 +163,7 @@ class SnowflakeConnection:
                     "warehouse": context["WAREHOUSE"],
                     "database": context["DATABASE"] or "not set",
                     "schema": context["SCHEMA"] or "not set",
-                    "host": self.env_config.connection.host,
+                    "host": getattr(self.env_config.connection, 'host', None) or "not set",
                 }
             else:
                 return {

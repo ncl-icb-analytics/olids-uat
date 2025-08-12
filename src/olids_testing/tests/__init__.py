@@ -3,58 +3,20 @@
 from .data_quality import AllNullColumnsTest, EmptyTablesTest, ColumnCompletenessTest
 from .person_patterns import PersonPatternTest
 from .concept_mapping import ConceptMappingTest
-from .referential_integrity import (
-    AllReferentialIntegrityTest,
-    AllergyRelationshipTest,
-    AppointmentRelationshipTest,
-    DiagnosticRelationshipTest,
-    EncounterRelationshipTest,
-    EpisodeOfCareRelationshipTest,
-    FlagRelationshipTest,
-    LocationRelationshipTest,
-    MedicationRelationshipTest,
-    ObservationRelationshipTest,
-    OrganisationRelationshipTest,
-    PatientRelationshipTest,
-    PersonRelationshipTest,
-    PractitionerRelationshipTest,
-    ProcedureRelationshipTest,
-    ReferralRelationshipTest,
-    ScheduleRelationshipTest,
-)
+from .referential_integrity import ReferentialIntegrityTest
 
 # Main test registry - these are included in "run all" 
 TEST_REGISTRY = {
     'all_null_columns': AllNullColumnsTest,
     'empty_tables': EmptyTablesTest,
     'column_completeness': ColumnCompletenessTest,
-    'all_referential_integrity': AllReferentialIntegrityTest,
+    'referential_integrity': ReferentialIntegrityTest,
     'person_patterns': PersonPatternTest,
     'concept_mapping': ConceptMappingTest,
 }
 
-# Individual test registry - available for specific execution but not in "run all"
-INDIVIDUAL_TEST_REGISTRY = {
-    'allergy_relationships': AllergyRelationshipTest,
-    'appointment_relationships': AppointmentRelationshipTest,
-    'diagnostic_relationships': DiagnosticRelationshipTest,
-    'encounter_relationships': EncounterRelationshipTest,
-    'episode_of_care_relationships': EpisodeOfCareRelationshipTest,
-    'flag_relationships': FlagRelationshipTest,
-    'location_relationships': LocationRelationshipTest,
-    'medication_relationships': MedicationRelationshipTest,
-    'observation_relationships': ObservationRelationshipTest,
-    'organisation_relationships': OrganisationRelationshipTest,
-    'patient_relationships': PatientRelationshipTest,
-    'person_relationships': PersonRelationshipTest,
-    'practitioner_relationships': PractitionerRelationshipTest,
-    'procedure_relationships': ProcedureRelationshipTest,
-    'referral_relationships': ReferralRelationshipTest,
-    'schedule_relationships': ScheduleRelationshipTest,
-}
-
-# Combined registry for lookup by name
-ALL_TESTS_REGISTRY = {**TEST_REGISTRY, **INDIVIDUAL_TEST_REGISTRY}
+# No more individual test registry - all tests are in the main registry
+ALL_TESTS_REGISTRY = TEST_REGISTRY
 
 # Category mappings
 TEST_CATEGORIES = {
@@ -64,7 +26,7 @@ TEST_CATEGORIES = {
         'column_completeness',
     ],
     'referential_integrity': [
-        'all_referential_integrity',
+        'referential_integrity',
     ],
     'person_validation': [
         'person_patterns',

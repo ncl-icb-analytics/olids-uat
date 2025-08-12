@@ -155,6 +155,82 @@ def validate(ctx: click.Context):
     display_validation_results(config_ok, connection_ok, config, environment)
 
 
+@cli.command()
+@click.argument("environment", type=click.Choice(["dev", "uat", "prod"]))
+@click.pass_context
+def switch(ctx: click.Context, environment: str):
+    """Switch to a different environment (dev, uat, prod)."""
+    config = ctx.obj["config"]
+    
+    try:
+        # Validate the environment exists
+        env_config = config.get_environment(environment)
+        
+        # Update context for this session
+        ctx.obj["environment"] = environment
+        ctx.obj["env_config"] = env_config
+        
+        console.print(f"[green]Switched to environment: {environment}[/green]")
+        console.print(f"[dim]Database: {env_config.databases.source}[/dim]")
+        console.print(f"[dim]Description: {env_config.description}[/dim]")
+        
+    except KeyError as e:
+        console.print(f"[red]Error: {e}[/red]")
+        available = config.list_environments()
+        console.print(f"Available environments: {', '.join(available)}")
+
+
+@cli.command()
+@click.pass_context
+def quickstart(ctx: click.Context):
+    """Show getting started guide and common commands."""
+    from rich import box
+    
+    # Create quickstart guide
+    guide_text = Text()
+    guide_text.append("OLIDS Testing Framework - Quick Start Guide\n\n", style="bold cyan")
+    
+    guide_text.append("COMMON WORKFLOWS\n\n", style="bold yellow")
+    
+    guide_text.append("1. Check your setup:\n", style="bold")
+    guide_text.append("   olids-test validate\n\n", style="bright_black")
+    
+    guide_text.append("2. View available tests:\n", style="bold")
+    guide_text.append("   olids-test list-tests\n\n", style="bright_black")
+    
+    guide_text.append("3. Switch environment:\n", style="bold")
+    guide_text.append("   olids-test switch dev\n\n", style="bright_black")
+    
+    guide_text.append("4. Run all tests:\n", style="bold")
+    guide_text.append("   olids-test run all\n\n", style="bright_black")
+    
+    guide_text.append("5. Run a specific test suite:\n", style="bold")
+    guide_text.append("   olids-test run suite referential_integrity\n\n", style="bright_black")
+    
+    guide_text.append("6. Run with detailed output:\n", style="bold")
+    guide_text.append("   olids-test run all --show-passes\n\n", style="bright_black")
+    
+    guide_text.append("7. Export results:\n", style="bold")
+    guide_text.append("   olids-test run all --output json --export results.json\n\n", style="bright_black")
+    
+    guide_text.append("AVAILABLE TEST SUITES\n\n", style="bold yellow")
+    guide_text.append("• referential_integrity - All 85 foreign key relationship validations\n", style="white")
+    guide_text.append("• concept_mapping       - Terminology mapping validation\n", style="white")
+    guide_text.append("• person_patterns       - Business rule validation\n", style="white")
+    guide_text.append("• all_null_columns      - NULL column detection\n", style="white")
+    guide_text.append("• empty_tables          - Empty table detection\n", style="white")
+    guide_text.append("• column_completeness   - Column completeness validation\n\n", style="white")
+    
+    guide_text.append("EXPLORE MORE\n\n", style="bold yellow")
+    guide_text.append("• View configuration:    olids-test config show\n", style="white")
+    guide_text.append("• Check status:          olids-test run status\n", style="white")
+    guide_text.append("• Show framework info:   olids-test info\n", style="white")
+    guide_text.append("• Get help on any command: olids-test COMMAND --help\n", style="white")
+    
+    panel = Panel(guide_text, title="Getting Started", border_style="green", box=box.ROUNDED, width=80, expand=False)
+    console.print(panel)
+
+
 # Add command groups
 cli.add_command(config_group)
 cli.add_command(run_group)

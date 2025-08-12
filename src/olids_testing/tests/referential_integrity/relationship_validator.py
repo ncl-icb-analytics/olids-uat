@@ -14,22 +14,39 @@ from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskPr
 
 
 class ReferentialIntegrityTest(BaseTest):
-    """Test to validate foreign key relationships using configuration mapping."""
+    """Test to validate all foreign key relationships in the OLIDS database."""
     
-    def __init__(self, relationship_groups: Optional[List[str]] = None, mapping_file: Optional[Path] = None):
+    def __init__(self, mapping_file: Optional[Path] = None):
         """Initialize the test.
         
         Args:
-            relationship_groups: List of relationship group names to test (e.g., ['patient_relationships'])
             mapping_file: Path to YAML file containing relationship mappings
         """
         super().__init__(
             name="referential_integrity",
-            description="Validates foreign key relationships using configuration mapping",
+            description="Validates all 85 foreign key relationships in OLIDS database",
             category="referential_integrity"
         )
         
-        self.relationship_groups = relationship_groups or ["patient_relationships"]
+        # Always test all relationship groups
+        self.relationship_groups = [
+            "allergy_relationships",
+            "appointment_relationships", 
+            "diagnostic_relationships",
+            "encounter_relationships",
+            "episode_of_care_relationships",
+            "flag_relationships",
+            "location_relationships",
+            "medication_relationships",
+            "observation_relationships",
+            "organisation_relationships",
+            "patient_relationships",
+            "person_relationships",
+            "practitioner_relationships",
+            "procedure_relationships",
+            "referral_relationships",
+            "schedule_relationships"
+        ]
         
         # Default mapping file location
         if mapping_file is None:
@@ -102,10 +119,9 @@ class ReferentialIntegrityTest(BaseTest):
                 elif result['status'] == 'VIOLATED':
                     total_violations += result['violation_count']
             
-            # Clear the progress line and show completion
-            completion_msg = f"Completed {total_relationships} relationship validations"
-            spaces = " " * max(0, 80 - len(completion_msg))
-            sys.stdout.write(f"\r  {completion_msg}{spaces}")
+            # Clear progress line completely
+            clear_line = " " * 120  # Clear up to 120 characters
+            sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
             sys.stdout.flush()
             
             # Build failure details - ensure no duplicates
@@ -317,166 +333,3 @@ class ReferentialIntegrityTest(BaseTest):
                 'violation_percentage': 0.0
             }
 
-
-# Convenience classes for specific relationship groups
-class AllReferentialIntegrityTest(ReferentialIntegrityTest):
-    """Test all 127 referential integrity relationships from legacy system."""
-    
-    def __init__(self):
-        super().__init__(
-            relationship_groups=[
-                "allergy_relationships",
-                "appointment_relationships", 
-                "diagnostic_relationships",
-                "encounter_relationships",
-                "episode_of_care_relationships",
-                "flag_relationships",
-                "location_relationships",
-                "medication_relationships",
-                "observation_relationships",
-                "organisation_relationships",
-                "patient_relationships",
-                "person_relationships",
-                "practitioner_relationships",
-                "procedure_relationships",
-                "referral_relationships",
-                "schedule_relationships"
-            ]
-        )
-        self.name = "all_referential_integrity"
-        self.description = "Validates all 85 foreign key relationships from legacy referential_integrity_checker.py"
-
-
-class PatientRelationshipTest(ReferentialIntegrityTest):
-    """Test patient-specific foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(
-            relationship_groups=["patient_relationships"],
-        )
-        self.name = "patient_relationships"
-        self.description = "Validates foreign key relationships for patient entities"
-
-
-class PersonRelationshipTest(ReferentialIntegrityTest):
-    """Test person-specific foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(
-            relationship_groups=["person_relationships"],
-        )
-        self.name = "person_relationships"  
-        self.description = "Validates foreign key relationships for person entities"
-
-
-class AllergyRelationshipTest(ReferentialIntegrityTest):
-    """Test allergy and intolerance foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(relationship_groups=["allergy_relationships"])
-        self.name = "allergy_relationships"
-        self.description = "Validates foreign key relationships for allergy and intolerance entities"
-
-class AppointmentRelationshipTest(ReferentialIntegrityTest):
-    """Test appointment-specific foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(relationship_groups=["appointment_relationships"])
-        self.name = "appointment_relationships"
-        self.description = "Validates foreign key relationships for appointment entities"
-
-class DiagnosticRelationshipTest(ReferentialIntegrityTest):
-    """Test diagnostic order foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(relationship_groups=["diagnostic_relationships"])
-        self.name = "diagnostic_relationships" 
-        self.description = "Validates foreign key relationships for diagnostic order entities"
-
-class EncounterRelationshipTest(ReferentialIntegrityTest):
-    """Test encounter foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(relationship_groups=["encounter_relationships"])
-        self.name = "encounter_relationships"
-        self.description = "Validates foreign key relationships for encounter entities"
-
-class EpisodeOfCareRelationshipTest(ReferentialIntegrityTest):
-    """Test episode of care foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(relationship_groups=["episode_of_care_relationships"])
-        self.name = "episode_of_care_relationships"
-        self.description = "Validates foreign key relationships for episode of care entities"
-
-class FlagRelationshipTest(ReferentialIntegrityTest):
-    """Test flag foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(relationship_groups=["flag_relationships"])
-        self.name = "flag_relationships"
-        self.description = "Validates foreign key relationships for flag entities"
-
-class LocationRelationshipTest(ReferentialIntegrityTest):
-    """Test location foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(relationship_groups=["location_relationships"])
-        self.name = "location_relationships"
-        self.description = "Validates foreign key relationships for location entities"
-
-class MedicationRelationshipTest(ReferentialIntegrityTest):
-    """Test medication foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(relationship_groups=["medication_relationships"])
-        self.name = "medication_relationships"
-        self.description = "Validates foreign key relationships for medication entities"
-
-class ObservationRelationshipTest(ReferentialIntegrityTest):
-    """Test observation foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(relationship_groups=["observation_relationships"])
-        self.name = "observation_relationships"
-        self.description = "Validates foreign key relationships for observation entities"
-
-class OrganisationRelationshipTest(ReferentialIntegrityTest):
-    """Test organisation foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(relationship_groups=["organisation_relationships"])
-        self.name = "organisation_relationships"
-        self.description = "Validates foreign key relationships for organisation entities"
-
-class PractitionerRelationshipTest(ReferentialIntegrityTest):
-    """Test practitioner foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(relationship_groups=["practitioner_relationships"])
-        self.name = "practitioner_relationships"
-        self.description = "Validates foreign key relationships for practitioner entities"
-
-class ProcedureRelationshipTest(ReferentialIntegrityTest):
-    """Test procedure foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(relationship_groups=["procedure_relationships"])
-        self.name = "procedure_relationships"
-        self.description = "Validates foreign key relationships for procedure entities"
-
-class ReferralRelationshipTest(ReferentialIntegrityTest):
-    """Test referral foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(relationship_groups=["referral_relationships"])
-        self.name = "referral_relationships"
-        self.description = "Validates foreign key relationships for referral entities"
-
-class ScheduleRelationshipTest(ReferentialIntegrityTest):
-    """Test schedule foreign key relationships."""
-    
-    def __init__(self):
-        super().__init__(relationship_groups=["schedule_relationships"])
-        self.name = "schedule_relationships"
-        self.description = "Validates foreign key relationships for schedule entities"

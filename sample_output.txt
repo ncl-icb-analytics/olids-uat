@@ -1,0 +1,141 @@
+(venv) PS C:\Projects\olids-uat> olids-test run all
+Running all tests
+Running 6 tests
+  [1/6] all_null_columns - completed
+  [2/6] empty_tables - completed
+  [3/6] column_completeness - completed
+  [4/6] referential_integrity - completed
+  [5/6] person_patterns - completed
+  [6/6] concept_mapping - completed
+SQL queries logged: 193 queries saved to C:\Projects\olids-uat\sql_logs
+
+╭────────────────────────────────────────────────────────────────────────────╮
+│ ███████╗   ██████╗   ██╗   ██╗                                             │
+│ ██╔════╝  ██╔══██╗   ██║   ██║                                             │
+│ █████╗    ███████║   ██║   ██║                                             │
+│ ██╔══╝    ██╔══██║   ██║   ██║                                             │
+│ ██║       ██║  ██║   ██║   ███████╗                                        │
+│ ╚═╝       ╚═╝  ╚═╝   ╚═╝   ╚══════╝                                        │
+│                                                                            │
+│ Test Results Summary                                                       │
+│ Test Suites: 6                                                             │
+│ Data Tests: 870 (72 failed)                                                │
+│ Passed: 1                                                                  │
+│ Failed: 5                                                                  │
+│ Success Rate: 16.7%                                                        │
+│                                                                            │
+╰────────────────────────────────────────────────────────────────────────────╯
+
+                          Detailed Test Suite Results                          
+
+  Test Suite              Status   Data Tests   Failed   Success %   Time (s)  
+ ───────────────────────────────────────────────────────────────────────────── 
+  all_null_columns        PASS            710        0      100.0%       4.96 
+  empty_tables            FAIL             28        2       92.9%       3.11 
+  column_completeness     FAIL              6        1       83.3%       6.54 
+  referential_integrity   FAIL             85       44       48.2%       8.02 
+  person_patterns         FAIL             13        3       76.9%       4.43 
+  concept_mapping         FAIL             28       22       21.4%       2.26 
+
+
+Failure Details:
+
+• empty_tables:
+  Details:
+    Found 2 empty tables:
+      • OLIDS_MASKED.PATIENT_CONTACT (0 rows)
+      • OLIDS_MASKED.PATIENT_UPRN (0 rows)
+
+• column_completeness:
+  Details:
+    Found 1 completeness failures:
+      • ENCOUNTER.patient_id: 98.9% (required: 100.0%, missing: 4,359,316 rows)
+
+• referential_integrity:
+  Details:
+    Found 101,794,480 referential integrity violations across 85 relationships:
+      • ALLERGY_INTOLERANCE.encounter_id -> ENCOUNTER.id: 2 invalid (0.0% of 1,426,780)
+      • ALLERGY_INTOLERANCE.patient_id -> PATIENT.id: 3,939 invalid (0.2% of 1,754,963)
+      • ALLERGY_INTOLERANCE.person_id -> PERSON.id: 74 invalid (0.1% of 120,464)
+      • APPOINTMENT.patient_id -> PATIENT.id: 93,250 invalid (0.2% of 59,021,226)
+      • APPOINTMENT.person_id -> PERSON.id: 397 invalid (0.0% of 1,950,074)
+      • APPOINTMENT.schedule_id -> SCHEDULE.id: 2,722 invalid (0.0% of 123,100,170)
+      • APPOINTMENT_PRACTITIONER.appointment_id -> APPOINTMENT.id: 2,054,080 invalid (3.1% of 65,312,169)
+      • DIAGNOSTIC_ORDER.encounter_id -> ENCOUNTER.id: 96 invalid (0.0% of 101,027,275)
+      • DIAGNOSTIC_ORDER.patient_id -> PATIENT.id: 570,365 invalid (0.3% of 169,268,773)
+      • DIAGNOSTIC_ORDER.person_id -> PERSON.id: 36,557 invalid (0.1% of 44,648,964)
+      • ENCOUNTER.appointment_id -> APPOINTMENT.id: 304,686 invalid (2.2% of 13,796,519)
+      • ENCOUNTER.episode_of_care_id -> EPISODE_OF_CARE.id: 4,223 invalid (0.0% of 215,429,071)
+      • ENCOUNTER.patient_id -> PATIENT.id: 826,005 invalid (0.2% of 377,902,985)
+      • ENCOUNTER.person_id -> PERSON.id: 14,778 invalid (0.1% of 27,983,222)
+      • ENCOUNTER.practitioner_id -> PRACTITIONER.id: 1,171,718 invalid (0.3% of 378,389,820)
+      • EPISODE_OF_CARE.patient_id -> PATIENT.id: 7,131 invalid (0.2% of 3,158,149)
+      • EPISODE_OF_CARE.person_id -> PERSON.id: 129 invalid (0.0% of 261,099)
+      • LOCATION.managing_organisation_id -> ORGANISATION.id: 134,288 invalid (32.3% of 416,384)
+      • MEDICATION_ORDER.diagnostic_order_id -> DIAGNOSTIC_ORDER.id: 1,502 invalid (93.0% of 1,615)
+      • MEDICATION_ORDER.observation_id -> OBSERVATION.id: 62,476,596 invalid (87.7% of 71,228,989)
+      • MEDICATION_ORDER.patient_id -> PATIENT.id: 608,175 invalid (0.2% of 283,358,186)
+      • MEDICATION_ORDER.person_id -> PERSON.id: 3,469 invalid (0.1% of 6,113,367)
+      • MEDICATION_ORDER.referral_request_id -> REFERRAL_REQUEST.id: 58,204 invalid (100.0% of 58,204)
+      • MEDICATION_STATEMENT.diagnostic_order_id -> DIAGNOSTIC_ORDER.id: 280 invalid (87.0% of 322)
+      • MEDICATION_STATEMENT.observation_id -> OBSERVATION.id: 18,637,365 invalid (85.4% of 21,827,219)
+      • MEDICATION_STATEMENT.patient_id -> PATIENT.id: 168,791 invalid (0.2% of 76,321,790)
+      • MEDICATION_STATEMENT.person_id -> PERSON.id: 2,367 invalid (0.1% of 2,733,900)
+      • MEDICATION_STATEMENT.referral_request_id -> REFERRAL_REQUEST.id: 18,177 invalid (100.0% of 18,177)
+      • OBSERVATION.encounter_id -> ENCOUNTER.id: 96 invalid (0.0% of 101,306,718)
+      • OBSERVATION.patient_id -> PATIENT.id: 630,782 invalid (0.4% of 169,728,703)
+      • OBSERVATION.person_id -> PERSON.id: 36,569 invalid (0.1% of 45,108,894)
+      • PATIENT_ADDRESS.person_id -> PERSON.id: 69 invalid (0.1% of 73,504)
+      • PATIENT_PERSON.patient_id -> PATIENT.id: 3,999 invalid (0.6% of 725,082)
+      • PATIENT_PERSON.person_id -> PERSON.id: 623,507 invalid (48.8% of 1,278,947)
+      • PATIENT_REGISTERED_PRA....person_id -> PERSON.id: 2,301,813 invalid (100.0% of 2,301,813)
+      • PERSON.requesting_patient_id -> PATIENT.id: 954 invalid (0.5% of 204,016)
+      • PROCEDURE_REQUEST.patient_id -> PATIENT.id: 38,409 invalid (0.2% of 21,963,665)
+      • PROCEDURE_REQUEST.person_id -> PERSON.id: 508 invalid (0.1% of 350,233)
+      • PROCEDURE_REQUEST.practitioner_id -> PRACTITIONER.id: 53,076 invalid (0.2% of 21,979,036)
+      • REFERRAL_REQUEST.patient_id -> PATIENT.id: 10,743 invalid (0.2% of 6,573,118)
+      • REFERRAL_REQUEST.person_id -> PERSON.id: 284 invalid (0.1% of 258,877)
+      • REFERRAL_REQUEST.practitioner_id -> PRACTITIONER.id: 1 invalid (0.0% of 6,571,044)
+      • SCHEDULE.location_id -> LOCATION.id: 10,894,203 invalid (100.0% of 10,894,203)
+      • SCHEDULE_PRACTITIONER.schedule_id -> SCHEDULE.id: 101 invalid (0.0% of 7,985,938)
+
+• person_patterns:
+  Details:
+    Failed 3 out of 13 person pattern tests:
+      • patient_birth_year_range: Found 139 patients with invalid birth years (outside 1900-YEAR(CURRENT_DATE()) range) (139 failures out of 2,299,627 records)
+      • patient_has_practice: Found 74,293 patients with missing registered practice ID (no GP practice assigned) (74,293 failures out of 2,299,627 records)
+      • deceased_patient_death_year_vs_birth: Found 2 patients with death year before birth year (impossible dates) (2 failures out of 35,982 records)
+
+• concept_mapping:
+  Details:
+    Failed 22 out of 28 concept mapping tests
+    MAPPING FAILURES (missing CONCEPT_MAP, CONCEPT entries, or NULL codes):
+      • PROCEDURE_REQUEST.status_concept_id: 31 concept IDs missing CONCEPT_MAP (550 records, 0.0%)
+      • PROCEDURE_REQUEST.date_precision_concept_id: 1 concept IDs missing CONCEPT_MAP (8,632 records, 0.0%)
+      • OBSERVATION.result_value_unit_concept_id: 1,745 concept IDs missing CONCEPT_MAP (4,090,707 records, 4.1%)
+      • OBSERVATION.observation_source_concept_id: 377 concept IDs missing CONCEPT_MAP (7,653 records, 0.0%)
+      • OBSERVATION.episodicity_concept_id: 1 concept IDs missing CONCEPT_MAP (42 records, 0.0%)
+      • OBSERVATION.date_precision_concept_id: 1 concept IDs missing CONCEPT_MAP (161,024 records, 0.0%)
+      • DIAGNOSTIC_ORDER.date_precision_concept_id: 1,745 concept IDs missing CONCEPT_MAP (4,075,940 records, 4.1%)
+      • DIAGNOSTIC_ORDER.episodicity_concept_id: 1 concept IDs missing CONCEPT_MAP (40 records, 0.0%)
+      • DIAGNOSTIC_ORDER.diagnostic_order_source_concept_id: 377 concept IDs missing CONCEPT_MAP (7,645 records, 0.0%)
+      • MEDICATION_STATEMENT.medication_statement_core_concept_id: 1,781 concept IDs missing CONCEPT_MAP (1,770,138 records, 2.3%)
+      • ALLERGY_INTOLERANCE.allergy_intolerance_source_concept_id: 39 concept IDs missing CONCEPT_MAP (142 records, 0.0%)
+      • ALLERGY_INTOLERANCE.date_precision_concept_id: 1 concept IDs missing CONCEPT_MAP (24,796 records, 0.7%)
+      • APPOINTMENT.contact_mode_concept_id: 5 concept IDs missing CONCEPT_MAP (10,935,868 records, 4.7%)
+      • APPOINTMENT.appointment_status_concept_id: 7 concept IDs missing CONCEPT_MAP (47,414,914 records, 38.2%)
+      • PATIENT.gender_concept_id: 2 concept IDs missing CONCEPT_MAP (779 records, 0.0%)
+      • MEDICATION_ORDER.medication_order_core_concept_id: 19,458 concept IDs missing CONCEPT_MAP (281,310,919 records, 100.0%)
+      • REFERRAL_REQUEST.referal_request_type_concept_id: 70 concept IDs missing CONCEPT_MAP (36,192 records, 0.4%)
+      • REFERRAL_REQUEST.date_precision_concept_id: 1 concept IDs missing CONCEPT_MAP (501 records, 0.0%)
+      • REFERRAL_REQUEST.referral_request_priority_concept_id: 15 concept IDs missing CONCEPT_MAP (71 records, 0.0%)
+      • REFERRAL_REQUEST.referral_request_source_concept_id: 925 concept IDs missing CONCEPT_MAP (33,075 records, 0.4%)
+      • ENCOUNTER.date_precision_concept_id: 1 concept IDs missing CONCEPT_MAP (262,322 records, 0.0%)
+    DATA QUALITY FAILURES (NULL display values):
+      • PROCEDURE_REQUEST.status_concept_id: 19,591 concept IDs with NULL display (36,022,088 records, 78.7%)
+      • OBSERVATION.observation_source_concept_id: 131,737 concept IDs with NULL display (217,339,506 records, 92.0%)
+      • DIAGNOSTIC_ORDER.diagnostic_order_source_concept_id: 132,106 concept IDs with NULL display (216,757,018 records, 92.0%)
+      • MEDICATION_STATEMENT.medication_statement_core_concept_id: 27 concept IDs with NULL display (643,038 records, 0.8%)
+      • ALLERGY_INTOLERANCE.allergy_intolerance_source_concept_id: 8,842 concept IDs with NULL display (1,947,811 records, 98.6%)
+      • REFERRAL_REQUEST.referral_request_source_concept_id: 2,523 concept IDs with NULL display (6,923,563 records, 78.2%)
+      • ENCOUNTER.encounter_core_concept_id: 178 concept IDs with NULL display (368,472,472 records, 81.9%)

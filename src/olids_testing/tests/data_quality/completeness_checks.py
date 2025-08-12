@@ -160,10 +160,9 @@ class AllNullColumnsTest(BaseTest):
                     # Still count the columns that would have been checked
                     total_checked += len(columns_list)
                 
-            # Clear the progress line and show completion  
-            completion_msg = f"Completed checking {len(tables)} tables ({total_checked} columns)"
-            spaces = " " * max(0, 80 - len(completion_msg))
-            sys.stdout.write(f"\r  {completion_msg}{spaces}")
+            # Clear progress line completely
+            clear_line = " " * 120  # Clear up to 120 characters
+            sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
             sys.stdout.flush()
             
             # Determine test status and failure details
@@ -347,10 +346,9 @@ class EmptyTablesTest(BaseTest):
                     })
                     total_checked += 1
                 
-            # Clear the progress line and show completion  
-            completion_msg = f"Completed checking {len(tables)} tables for empty data"
-            spaces = " " * max(0, 80 - len(completion_msg))
-            sys.stdout.write(f"\r  {completion_msg}{spaces}")
+            # Clear progress line completely
+            clear_line = " " * 120  # Clear up to 120 characters
+            sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
             sys.stdout.flush()
             
             # Determine test status and failure details
@@ -472,8 +470,15 @@ class ColumnCompletenessTest(BaseTest):
             completeness_results = []
             failed_checks = []
             total_checks = len(self.completeness_rules)
+            current_check = 0
+            
+            import sys
             
             for table_column, rule in self.completeness_rules.items():
+                current_check += 1
+                # Show progress indicator
+                sys.stdout.write(f"\r  Checking column completeness [{current_check}/{total_checks}]: {table_column}")
+                sys.stdout.flush()
                 try:
                     table_name, column_name = table_column.split('.')
                     schema_name = rule['schema']
@@ -537,6 +542,11 @@ class ColumnCompletenessTest(BaseTest):
                         'table_column': table_column,
                         'error': str(e)
                     })
+            
+            # Clear progress line completely
+            clear_line = " " * 120  # Clear up to 120 characters
+            sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
+            sys.stdout.flush()
             
             # Build failure details
             failure_details = []
