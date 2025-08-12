@@ -2,7 +2,7 @@
 
 A scalable testing framework for OLIDS (One London Integrated Data Set) User Acceptance Testing (UAT) with a rich CLI.
 
-<img width="2122" height="1184" alt="image" src="https://github.com/user-attachments/assets/5ea35d8f-fe0e-4458-b6b4-f014b3e34079" />
+<img width="1324" height="1382" alt="image" src="https://github.com/user-attachments/assets/930eab9e-dee5-4dde-9f2d-5ee749c22ea8" />
 
 ## 📋 Overview
 
