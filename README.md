@@ -141,7 +141,6 @@ README.md
    
    # Edit the configuration file with your environment details
    # Update: databases, connection details, role, warehouse
-   nano config/environments/uat.yml  # or use your preferred editor
   ```
    
    **Example environment configuration:**
