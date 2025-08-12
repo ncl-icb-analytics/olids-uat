@@ -1,0 +1,125 @@
+# Person Pattern Test Mappings for OLIDS UAT Testing Framework
+# Simplified configuration-driven tests focusing on practical data quality
+
+# Core Data Quality Tests
+core_tests:
+  description: "Essential person and patient data quality validations"
+  tests:
+    - name: "person_id_uniqueness"
+      description: "All person IDs must be unique in source PERSON table"
+      type: "uniqueness"
+      table: "PERSON"
+      unique_column: "id"
+      
+    - name: "person_to_patient_linkage"
+      description: "All persons should link to at least one patient record"
+      type: "relationship"
+      base_table: "PERSON"
+      join_table: "PATIENT_PERSON"
+      join_condition: 'per."id" = pp."person_id"'
+      
+    - name: "patient_has_birth_year"
+      description: "All non-dummy patients should have a birth year"
+      type: "completeness"
+      table: "PATIENT"
+      filter: '"is_dummy_patient" = FALSE'
+      required_fields: ["birth_year"]
+      check_empty_strings: true
+      
+    - name: "patient_birth_year_range"
+      description: "Patient birth years should be reasonable (1900-current year)"
+      type: "range_validation"
+      table: "PATIENT"
+      filter: '"is_dummy_patient" = FALSE'
+      field: "birth_year"
+      cast_to: "INTEGER"
+      min_value: 1900
+      max_value: "YEAR(CURRENT_DATE())"
+      exclude_nulls: true
+      exclude_empty: true
+      
+    - name: "patient_birth_month_range"
+      description: "Patient birth months should be valid (1-12)"
+      type: "range_validation"
+      table: "PATIENT"
+      filter: '"is_dummy_patient" = FALSE'
+      field: "birth_month"
+      cast_to: "INTEGER"
+      min_value: 1
+      max_value: 12
+      exclude_nulls: true
+      exclude_empty: true
+      
+    - name: "patient_has_practice"
+      description: "Non-dummy patients should have a registered practice"
+      type: "completeness"
+      table: "PATIENT"
+      filter: '"is_dummy_patient" = FALSE'
+      required_fields: ["registered_practice_id"]
+      
+    - name: "patient_practice_exists"
+      description: "Patient registered practices should exist in ORGANISATION table"
+      type: "referential_integrity"
+      source_table: "PATIENT"
+      source_key: "registered_practice_id"
+      reference_table: "ORGANISATION"
+      reference_key: "id"
+      filter: '"is_dummy_patient" = FALSE'
+      exclude_null_keys: true
+      
+    - name: "patient_flags_not_null"
+      description: "Patient boolean flags should not be null"
+      type: "completeness"
+      table: "PATIENT"
+      filter: '"is_dummy_patient" = FALSE'
+      required_fields: ["is_confidential", "is_spine_sensitive"]
+      
+    - name: "deceased_patient_death_year_vs_birth"
+      description: "Death year should be after birth year"
+      type: "field_comparison"
+      table: "PATIENT"
+      filter: '"death_year" IS NOT NULL AND "birth_year" IS NOT NULL'
+      field1: "death_year"
+      field2: "birth_year"
+      comparison: "greater_than_or_equal"
+      cast_to: "INTEGER"
+      exclude_empty: true
+      
+    - name: "patient_record_owner_code"
+      description: "Non-dummy patients should have a record owner organisation code"
+      type: "completeness"
+      table: "PATIENT"
+      filter: '"is_dummy_patient" = FALSE'
+      required_fields: ["record_owner_organisation_code"]
+      check_empty_strings: true
+      
+    - name: "patient_has_registered_practitioner"
+      description: "Non-dummy patients should have at least one registered practitioner relationship"
+      type: "relationship"
+      base_table: "PATIENT"
+      join_table: "PATIENT_REGISTERED_PRACTITIONER_IN_ROLE"
+      join_condition: 'p."id" = prr."patient_id"'
+      filter: '"is_dummy_patient" = FALSE'
+      
+    - name: "patient_has_any_gp_registration_history"
+      description: "Non-dummy patients should have at least one GP registration record (active, deducted, or deceased are all normal)"
+      type: "relationship"
+      base_table: "PATIENT"
+      join_table: "PATIENT_REGISTERED_PRACTITIONER_IN_ROLE"
+      join_condition: 'p."id" = prr."patient_id"'
+      filter: '"is_dummy_patient" = FALSE'
+      
+    - name: "patient_multiple_active_practitioners"
+      description: "Identify patients with multiple active practitioner registrations (may indicate data quality issues)"
+      type: "count_check"
+      table: "PATIENT"
+      filter: '"is_dummy_patient" = FALSE'
+      count_query: |
+        SELECT p."id", COUNT(DISTINCT prr."practitioner_id") as practitioner_count
+        FROM "{source_db}"."OLIDS_MASKED"."PATIENT" p
+        LEFT JOIN "{source_db}"."OLIDS_MASKED"."PATIENT_REGISTERED_PRACTITIONER_IN_ROLE" prr
+          ON p."id" = prr."patient_id" 
+          AND (prr."end_date" IS NULL OR prr."end_date" > CURRENT_TIMESTAMP())
+        WHERE p."is_dummy_patient" = FALSE
+        GROUP BY p."id"
+        HAVING COUNT(DISTINCT prr."practitioner_id") > 1

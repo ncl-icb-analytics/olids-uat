@@ -1,0 +1,561 @@
+# Referential integrity mappings for OLIDS UAT testing
+# All 85 relationships extracted from legacy referential_integrity_checker.py
+# Organized by logical relationship groups
+
+allergy_relationships:
+  description: "Allergy and intolerance foreign key relationships"
+  relationships:
+    - source_table: "ALLERGY_INTOLERANCE"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Every allergy/intolerance must have a valid patient"
+    
+    - source_table: "ALLERGY_INTOLERANCE"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Every allergy/intolerance must have a valid person"
+    
+    - source_table: "ALLERGY_INTOLERANCE"
+      foreign_key: "encounter_id"
+      reference_table: "ENCOUNTER"
+      reference_key: "id"
+      description: "Allergy/intolerance encounter must be valid"
+    
+    - source_table: "ALLERGY_INTOLERANCE"
+      foreign_key: "practitioner_id"
+      reference_table: "PRACTITIONER"
+      reference_key: "id"
+      description: "Allergy/intolerance practitioner must be valid"
+
+appointment_relationships:
+  description: "Appointment scheduling foreign key relationships"
+  relationships:
+    - source_table: "APPOINTMENT"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Every appointment must have a valid patient"
+    
+    - source_table: "APPOINTMENT"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Every appointment must have a valid person"
+    
+    - source_table: "APPOINTMENT"
+      foreign_key: "organisation_id"
+      reference_table: "ORGANISATION"
+      reference_key: "id"
+      description: "Appointment organisation must be valid"
+    
+    - source_table: "APPOINTMENT"
+      foreign_key: "practitioner_in_role_id"
+      reference_table: "PRACTITIONER_IN_ROLE"
+      reference_key: "id"
+      description: "Appointment practitioner role must be valid"
+    
+    - source_table: "APPOINTMENT"
+      foreign_key: "schedule_id"
+      reference_table: "SCHEDULE"
+      reference_key: "id"
+      description: "Appointment schedule must be valid"
+    
+    - source_table: "APPOINTMENT_PRACTITIONER"
+      foreign_key: "appointment_id"
+      reference_table: "APPOINTMENT"
+      reference_key: "id"
+      description: "Appointment-practitioner link must have valid appointment"
+    
+    - source_table: "APPOINTMENT_PRACTITIONER"
+      foreign_key: "practitioner_id"
+      reference_table: "PRACTITIONER"
+      reference_key: "id"
+      description: "Appointment-practitioner link must have valid practitioner"
+
+diagnostic_relationships:
+  description: "Diagnostic order foreign key relationships"
+  relationships:
+    - source_table: "DIAGNOSTIC_ORDER"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Every diagnostic order must have a valid patient"
+    
+    - source_table: "DIAGNOSTIC_ORDER"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Every diagnostic order must have a valid person"
+    
+    - source_table: "DIAGNOSTIC_ORDER"
+      foreign_key: "encounter_id"
+      reference_table: "ENCOUNTER"
+      reference_key: "id"
+      description: "Diagnostic order encounter must be valid"
+    
+    - source_table: "DIAGNOSTIC_ORDER"
+      foreign_key: "practitioner_id"
+      reference_table: "PRACTITIONER"
+      reference_key: "id"
+      description: "Diagnostic order practitioner must be valid"
+    
+    - source_table: "DIAGNOSTIC_ORDER"
+      foreign_key: "parent_observation_id"
+      reference_table: "OBSERVATION"
+      reference_key: "id"
+      description: "Parent observation must be valid if specified"
+
+encounter_relationships:
+  description: "Clinical encounter foreign key relationships"
+  relationships:
+    - source_table: "ENCOUNTER"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Every encounter must have a valid patient"
+    
+    - source_table: "ENCOUNTER"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Every encounter must have a valid person"
+    
+    - source_table: "ENCOUNTER"
+      foreign_key: "appointment_id"
+      reference_table: "APPOINTMENT"
+      reference_key: "id"
+      description: "Encounter appointment must be valid if specified"
+    
+    - source_table: "ENCOUNTER"
+      foreign_key: "episode_of_care_id"
+      reference_table: "EPISODE_OF_CARE"
+      reference_key: "id"
+      description: "Encounter episode of care must be valid"
+    
+    - source_table: "ENCOUNTER"
+      foreign_key: "practitioner_id"
+      reference_table: "PRACTITIONER"
+      reference_key: "id"
+      description: "Encounter practitioner must be valid"
+    
+    - source_table: "ENCOUNTER"
+      foreign_key: "service_provider_organisation_id"
+      reference_table: "ORGANISATION"
+      reference_key: "id"
+      description: "Encounter service provider organisation must be valid"
+
+episode_of_care_relationships:
+  description: "Episode of care foreign key relationships"
+  relationships:
+    - source_table: "EPISODE_OF_CARE"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Every episode of care must have a valid patient"
+    
+    - source_table: "EPISODE_OF_CARE"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Every episode of care must have a valid person"
+    
+    - source_table: "EPISODE_OF_CARE"
+      foreign_key: "organisation_id"
+      reference_table: "ORGANISATION"
+      reference_key: "id"
+      description: "Episode of care organisation must be valid"
+    
+    - source_table: "EPISODE_OF_CARE"
+      foreign_key: "care_manager_practitioner_id"
+      reference_table: "PRACTITIONER"
+      reference_key: "id"
+      description: "Care manager practitioner must be valid if specified"
+
+flag_relationships:
+  description: "Patient flag foreign key relationships"
+  relationships:
+    - source_table: "FLAG"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Every flag must have a valid patient"
+    
+    - source_table: "FLAG"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Every flag must have a valid person"
+
+location_relationships:
+  description: "Location and contact foreign key relationships"
+  relationships:
+    - source_table: "LOCATION"
+      foreign_key: "managing_organisation_id"
+      reference_table: "ORGANISATION"
+      reference_key: "id"
+      description: "Location managing organisation must be valid"
+    
+    - source_table: "LOCATION_CONTACT"
+      foreign_key: "location_id"
+      reference_table: "LOCATION"
+      reference_key: "id"
+      description: "Location contact must have valid location"
+
+medication_relationships:
+  description: "Medication order and statement foreign key relationships"
+  relationships:
+    - source_table: "MEDICATION_ORDER"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Every medication order must have a valid patient"
+    
+    - source_table: "MEDICATION_ORDER"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Every medication order must have a valid person"
+    
+    - source_table: "MEDICATION_ORDER"
+      foreign_key: "encounter_id"
+      reference_table: "ENCOUNTER"
+      reference_key: "id"
+      description: "Medication order encounter must be valid"
+    
+    - source_table: "MEDICATION_ORDER"
+      foreign_key: "practitioner_id"
+      reference_table: "PRACTITIONER"
+      reference_key: "id"
+      description: "Medication order practitioner must be valid"
+    
+    - source_table: "MEDICATION_ORDER"
+      foreign_key: "organisation_id"
+      reference_table: "ORGANISATION"
+      reference_key: "id"
+      description: "Medication order organisation must be valid"
+    
+    - source_table: "MEDICATION_ORDER"
+      foreign_key: "allergy_intolerance_id"
+      reference_table: "ALLERGY_INTOLERANCE"
+      reference_key: "id"
+      description: "Related allergy/intolerance must be valid if specified"
+    
+    - source_table: "MEDICATION_ORDER"
+      foreign_key: "diagnostic_order_id"
+      reference_table: "DIAGNOSTIC_ORDER"
+      reference_key: "id"
+      description: "Related diagnostic order must be valid if specified"
+    
+    - source_table: "MEDICATION_ORDER"
+      foreign_key: "medication_statement_id"
+      reference_table: "MEDICATION_STATEMENT"
+      reference_key: "id"
+      description: "Related medication statement must be valid if specified"
+    
+    - source_table: "MEDICATION_ORDER"
+      foreign_key: "observation_id"
+      reference_table: "OBSERVATION"
+      reference_key: "id"
+      description: "Related observation must be valid if specified"
+    
+    - source_table: "MEDICATION_ORDER"
+      foreign_key: "referral_request_id"
+      reference_table: "REFERRAL_REQUEST"
+      reference_key: "id"
+      description: "Related referral request must be valid if specified"
+    
+    - source_table: "MEDICATION_STATEMENT"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Every medication statement must have a valid patient"
+    
+    - source_table: "MEDICATION_STATEMENT"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Every medication statement must have a valid person"
+    
+    - source_table: "MEDICATION_STATEMENT"
+      foreign_key: "encounter_id"
+      reference_table: "ENCOUNTER"
+      reference_key: "id"
+      description: "Medication statement encounter must be valid"
+    
+    - source_table: "MEDICATION_STATEMENT"
+      foreign_key: "practitioner_id"
+      reference_table: "PRACTITIONER"
+      reference_key: "id"
+      description: "Medication statement practitioner must be valid"
+    
+    - source_table: "MEDICATION_STATEMENT"
+      foreign_key: "organisation_id"
+      reference_table: "ORGANISATION"
+      reference_key: "id"
+      description: "Medication statement organisation must be valid"
+    
+    - source_table: "MEDICATION_STATEMENT"
+      foreign_key: "allergy_intolerance_id"
+      reference_table: "ALLERGY_INTOLERANCE"
+      reference_key: "id"
+      description: "Related allergy/intolerance must be valid if specified"
+    
+    - source_table: "MEDICATION_STATEMENT"
+      foreign_key: "diagnostic_order_id"
+      reference_table: "DIAGNOSTIC_ORDER"
+      reference_key: "id"
+      description: "Related diagnostic order must be valid if specified"
+    
+    - source_table: "MEDICATION_STATEMENT"
+      foreign_key: "observation_id"
+      reference_table: "OBSERVATION"
+      reference_key: "id"
+      description: "Related observation must be valid if specified"
+    
+    - source_table: "MEDICATION_STATEMENT"
+      foreign_key: "referral_request_id"
+      reference_table: "REFERRAL_REQUEST"
+      reference_key: "id"
+      description: "Related referral request must be valid if specified"
+
+observation_relationships:
+  description: "Clinical observation foreign key relationships"
+  relationships:
+    - source_table: "OBSERVATION"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Every observation must have a valid patient"
+    
+    - source_table: "OBSERVATION"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Every observation must have a valid person"
+    
+    - source_table: "OBSERVATION"
+      foreign_key: "encounter_id"
+      reference_table: "ENCOUNTER"
+      reference_key: "id"
+      description: "Observation encounter must be valid"
+    
+    - source_table: "OBSERVATION"
+      foreign_key: "parent_obervation_id"
+      reference_table: "OBSERVATION"
+      reference_key: "id"
+      description: "Parent observation must be valid if specified"
+    
+    - source_table: "OBSERVATION"
+      foreign_key: "practioner_id"
+      reference_table: "PRACTITIONER"
+      reference_key: "id"
+      description: "Observation practitioner must be valid"
+
+organisation_relationships:
+  description: "Organisation hierarchy foreign key relationships"
+  relationships:
+    - source_table: "ORGANISATION"
+      foreign_key: "parent_organisation_id"
+      reference_table: "ORGANISATION"
+      reference_key: "id"
+      description: "Parent organisation must be valid if specified"
+    
+    - source_table: "PATIENT"
+      foreign_key: "registered_practice_id"
+      reference_table: "ORGANISATION"
+      reference_key: "id"
+      description: "Patient registered practice must be valid"
+
+patient_relationships:
+  description: "Patient contact and address foreign key relationships"
+  relationships:
+    - source_table: "PATIENT_ADDRESS"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Patient address must have valid patient"
+    
+    - source_table: "PATIENT_ADDRESS"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Patient address must have valid person"
+    
+    - source_table: "PATIENT_CONTACT"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Patient contact must have valid patient"
+    
+    - source_table: "PATIENT_CONTACT"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Patient contact must have valid person"
+    
+    - source_table: "PATIENT_PERSON"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Patient-person link must have valid patient"
+    
+    - source_table: "PATIENT_PERSON"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Patient-person link must have valid person"
+    
+    - source_table: "PATIENT_REGISTERED_PRACTITIONER_IN_ROLE"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Patient registered practitioner must have valid patient"
+    
+    - source_table: "PATIENT_REGISTERED_PRACTITIONER_IN_ROLE"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Patient registered practitioner must have valid person"
+    
+    - source_table: "PATIENT_REGISTERED_PRACTITIONER_IN_ROLE"
+      foreign_key: "practitioner_id"
+      reference_table: "PRACTITIONER"
+      reference_key: "id"
+      description: "Patient registered practitioner must have valid practitioner"
+    
+    - source_table: "PATIENT_REGISTERED_PRACTITIONER_IN_ROLE"
+      foreign_key: "organisation_id"
+      reference_table: "ORGANISATION"
+      reference_key: "id"
+      description: "Patient registered practitioner must have valid organisation"
+    
+    - source_table: "PATIENT_REGISTERED_PRACTITIONER_IN_ROLE"
+      foreign_key: "episode_of_care_id"
+      reference_table: "EPISODE_OF_CARE"
+      reference_key: "id"
+      description: "Patient registered practitioner must have valid episode of care"
+
+person_relationships:
+  description: "Person foreign key relationships"
+  relationships:
+    - source_table: "PERSON"
+      foreign_key: "requesting_patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Requesting patient must be valid if specified"
+
+practitioner_relationships:
+  description: "Practitioner and role foreign key relationships"
+  relationships:
+    - source_table: "PRACTITIONER_IN_ROLE"
+      foreign_key: "practitioner_id"
+      reference_table: "PRACTITIONER"
+      reference_key: "id"
+      description: "Practitioner role must have valid practitioner"
+    
+    - source_table: "PRACTITIONER_IN_ROLE"
+      foreign_key: "organisation_id"
+      reference_table: "ORGANISATION"
+      reference_key: "id"
+      description: "Practitioner role must have valid organisation"
+
+procedure_relationships:
+  description: "Procedure request foreign key relationships"
+  relationships:
+    - source_table: "PROCEDURE_REQUEST"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Every procedure request must have a valid patient"
+    
+    - source_table: "PROCEDURE_REQUEST"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Every procedure request must have a valid person"
+    
+    - source_table: "PROCEDURE_REQUEST"
+      foreign_key: "encounter_id"
+      reference_table: "ENCOUNTER"
+      reference_key: "id"
+      description: "Procedure request encounter must be valid"
+    
+    - source_table: "PROCEDURE_REQUEST"
+      foreign_key: "practitioner_id"
+      reference_table: "PRACTITIONER"
+      reference_key: "id"
+      description: "Procedure request practitioner must be valid"
+
+referral_relationships:
+  description: "Referral request foreign key relationships"
+  relationships:
+    - source_table: "REFERRAL_REQUEST"
+      foreign_key: "patient_id"
+      reference_table: "PATIENT"
+      reference_key: "id"
+      description: "Every referral request must have a valid patient"
+    
+    - source_table: "REFERRAL_REQUEST"
+      foreign_key: "person_id"
+      reference_table: "PERSON"
+      reference_key: "id"
+      description: "Every referral request must have a valid person"
+    
+    - source_table: "REFERRAL_REQUEST"
+      foreign_key: "encounter_id"
+      reference_table: "ENCOUNTER"
+      reference_key: "id"
+      description: "Referral request encounter must be valid"
+    
+    - source_table: "REFERRAL_REQUEST"
+      foreign_key: "practitioner_id"
+      reference_table: "PRACTITIONER"
+      reference_key: "id"
+      description: "Referral request practitioner must be valid"
+    
+    - source_table: "REFERRAL_REQUEST"
+      foreign_key: "organisation_id"
+      reference_table: "ORGANISATION"
+      reference_key: "id"
+      description: "Referral request organisation must be valid"
+    
+    - source_table: "REFERRAL_REQUEST"
+      foreign_key: "recipient_organisation_id"
+      reference_table: "ORGANISATION"
+      reference_key: "id"
+      description: "Referral request recipient organisation must be valid"
+    
+    - source_table: "REFERRAL_REQUEST"
+      foreign_key: "requester_organisation_id"
+      reference_table: "ORGANISATION"
+      reference_key: "id"
+      description: "Referral request requester organisation must be valid"
+
+schedule_relationships:
+  description: "Schedule and practitioner scheduling foreign key relationships"
+  relationships:
+    - source_table: "SCHEDULE"
+      foreign_key: "location_id"
+      reference_table: "LOCATION"
+      reference_key: "id"
+      description: "Schedule location must be valid"
+    
+    - source_table: "SCHEDULE"
+      foreign_key: "practitioner_id"
+      reference_table: "PRACTITIONER"
+      reference_key: "id"
+      description: "Schedule practitioner must be valid"
+    
+    - source_table: "SCHEDULE_PRACTITIONER"
+      foreign_key: "practitioner_id"
+      reference_table: "PRACTITIONER"
+      reference_key: "id"
+      description: "Schedule-practitioner link must have valid practitioner"
+    
+    - source_table: "SCHEDULE_PRACTITIONER"
+      foreign_key: "schedule_id"
+      reference_table: "SCHEDULE"
+      reference_key: "id"
+      description: "Schedule-practitioner link must have valid schedule"

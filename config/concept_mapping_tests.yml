@@ -1,0 +1,132 @@
+# Concept Mapping Test Configuration for OLIDS UAT Testing Framework
+# Tests concept ID mappings through CONCEPT_MAP to CONCEPT tables
+# Pattern: source_table.concept_field → CONCEPT_MAP → CONCEPT
+
+concept_mapping_tests:
+  description: "Validates concept ID mappings from source tables through CONCEPT_MAP to CONCEPT"
+  
+  tests:
+    # PROCEDURE_REQUEST tests
+    - source_table: "PROCEDURE_REQUEST"
+      concept_field: "status_concept_id"
+      description: "Procedure request status concept mapping"
+      
+    - source_table: "PROCEDURE_REQUEST" 
+      concept_field: "date_precision_concept_id"
+      description: "Procedure request date precision concept mapping"
+      
+    - source_table: "PROCEDURE_REQUEST"
+      concept_field: "procedure_core_concept_id"
+      description: "Procedure request core concept mapping"
+
+    # PATIENT_ADDRESS tests  
+    - source_table: "PATIENT_ADDRESS"
+      concept_field: "address_type_concept_id"
+      description: "Patient address type concept mapping"
+
+    # OBSERVATION tests
+    - source_table: "OBSERVATION"
+      concept_field: "result_value_unit_concept_id"
+      description: "Observation result value unit concept mapping"
+      
+    - source_table: "OBSERVATION"
+      concept_field: "observation_source_concept_id"
+      description: "Observation source concept mapping"
+      
+    - source_table: "OBSERVATION"
+      concept_field: "episodicity_concept_id"
+      description: "Observation episodicity concept mapping"
+      
+    - source_table: "OBSERVATION"
+      concept_field: "date_precision_concept_id"
+      description: "Observation date precision concept mapping"
+
+    # DIAGNOSTIC_ORDER tests
+    - source_table: "DIAGNOSTIC_ORDER"
+      concept_field: "date_precision_concept_id"
+      description: "Diagnostic order date precision concept mapping"
+      
+    - source_table: "DIAGNOSTIC_ORDER"
+      concept_field: "episodicity_concept_id"
+      description: "Diagnostic order episodicity concept mapping"
+      
+    - source_table: "DIAGNOSTIC_ORDER"
+      concept_field: "diagnostic_order_source_concept_id"
+      description: "Diagnostic order source concept mapping"
+
+    # MEDICATION_STATEMENT tests
+    - source_table: "MEDICATION_STATEMENT"
+      concept_field: "medication_statement_core_concept_id"
+      description: "Medication statement core concept mapping"
+
+    # ALLERGY_INTOLERANCE tests
+    - source_table: "ALLERGY_INTOLERANCE"
+      concept_field: "allergy_intolerance_source_concept_id"
+      description: "Allergy intolerance source concept mapping"
+      
+    - source_table: "ALLERGY_INTOLERANCE"
+      concept_field: "date_precision_concept_id"
+      description: "Allergy intolerance date precision concept mapping"
+
+    # APPOINTMENT tests
+    - source_table: "APPOINTMENT"
+      concept_field: "contact_mode_concept_id"
+      description: "Appointment contact mode concept mapping"
+      
+    - source_table: "APPOINTMENT"
+      concept_field: "booking_method_concept_id" 
+      description: "Appointment booking method concept mapping"
+      
+    - source_table: "APPOINTMENT"
+      concept_field: "appointment_status_concept_id"
+      description: "Appointment status concept mapping"
+
+    # PATIENT tests
+    - source_table: "PATIENT"
+      concept_field: "gender_concept_id"
+      description: "Patient gender concept mapping"
+
+    # MEDICATION_ORDER tests
+    - source_table: "MEDICATION_ORDER"
+      concept_field: "medication_order_core_concept_id"
+      description: "Medication order core concept mapping"
+      
+    - source_table: "MEDICATION_ORDER"
+      concept_field: "date_precision_concept_id"
+      description: "Medication order date precision concept mapping"
+
+    # REFERRAL_REQUEST tests
+    - source_table: "REFERRAL_REQUEST"
+      concept_field: "referal_request_type_concept_id"  # Note: typo matches source
+      description: "Referral request type concept mapping"
+      
+    - source_table: "REFERRAL_REQUEST"
+      concept_field: "date_precision_concept_id"
+      description: "Referral request date precision concept mapping"
+      
+    - source_table: "REFERRAL_REQUEST"
+      concept_field: "referral_request_priority_concept_id"
+      description: "Referral request priority concept mapping"
+      
+    - source_table: "REFERRAL_REQUEST"
+      concept_field: "referral_request_source_concept_id"
+      description: "Referral request source concept mapping"
+
+    # ENCOUNTER tests
+    - source_table: "ENCOUNTER"
+      concept_field: "date_precision_concept_id"
+      description: "Encounter date precision concept mapping"
+      
+    - source_table: "ENCOUNTER"
+      concept_field: "encounter_core_concept_id"
+      description: "Encounter core concept mapping"
+
+    # LOCATION_CONTACT tests
+    - source_table: "LOCATION_CONTACT"
+      concept_field: "contact_type_concept_id"
+      description: "Location contact type concept mapping"
+
+    # PATIENT_CONTACT tests  
+    - source_table: "PATIENT_CONTACT"
+      concept_field: "contact_type_concept_id"
+      description: "Patient contact type concept mapping"
