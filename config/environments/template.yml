@@ -1,0 +1,49 @@
+# Environment Configuration Template for OLIDS UAT Testing Framework
+# Copy this file to create your environment-specific configuration
+# Example: cp template.yml uat.yml
+
+description: "OLIDS Environment - Replace with your environment description"
+
+# Database configuration
+databases:
+  source: "Data_Store_OLIDS_UAT"        # Main OLIDS database
+  terminology: "Data_Store_OLIDS_UAT"   # Terminology database (often same as source)
+  results: "DATA_LAB_OLIDS_UAT"         # Results database for test outputs
+  dictionary: "Dictionary"              # Data dictionary database
+
+# Schema configuration
+schemas:
+  masked: "OLIDS_MASKED"           # Main data schema
+  terminology: "OLIDS_TERMINOLOGY" # Terminology schema
+  tests: "TESTS"                   # Test results schema
+
+# Snowflake connection details
+connection:
+  account: "your-snowflake-account"          # e.g., "abc12345.eu-west-1"
+  host: "your-snowflake-account.snowflakecomputing.com"
+  role: "YOUR_ROLE"                          # e.g., "OLIDS_USER_ROLE"
+  warehouse: "YOUR_WAREHOUSE"                # e.g., "OLIDS_WAREHOUSE"
+
+# Execution settings
+execution:
+  parallel_workers: 4        # Number of parallel test workers
+  timeout_seconds: 300       # Test timeout in seconds
+  retry_attempts: 3          # Number of retry attempts for failed connections
+
+# Optional: Override default test configurations
+# test_overrides:
+#   column_completeness:
+#     timeout: 600
+#     parallel: false
+#   referential_integrity:
+#     timeout: 900
+
+# Instructions:
+# 1. Copy this file: cp config/environments/template.yml config/environments/your-env.yml
+# 2. Replace placeholders with your actual values:
+#    - YOUR_ENV: Your environment name (e.g., UAT, DEV, PROD)
+#    - your-snowflake-account: Your Snowflake account identifier
+#    - YOUR_ROLE: Your Snowflake role with appropriate permissions
+#    - YOUR_WAREHOUSE: Your Snowflake warehouse for running queries
+# 3. Ensure your Snow CLI is configured with matching credentials
+# 4. Test connection: python -m olids_testing.cli.main config show --environment your-env

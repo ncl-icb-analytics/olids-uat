@@ -68,7 +68,8 @@ Thumbs.db
 
 # Project-specific ignores
 # Environment configurations (contain sensitive connection details)
-config/environments/
+# Ignore environment YAMLs but keep the template tracked
+config/environments/*.yml
 !config/environments/template.yml
 
 # SQL query logs

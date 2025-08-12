@@ -1,27 +1,10 @@
 # OLIDS UAT Testing Framework
 
-A modern, maintainable, and scalable testing framework for OLIDS (Open Learning and Integrated Data System) healthcare data warehouse User Acceptance Testing (UAT).
-
-## 🚀 Quick Start
-
-```bash
-# Clone and setup
-git clone <repository-url>
-cd olids-uat
-python -m venv venv
-source venv/bin/activate  # Unix/Mac
-# or venv\Scripts\activate  # Windows
-
-# Install framework
-pip install -e .
-
-# Run tests
-olids-test run all
-```
+A scalable testing framework for OLIDS (One London Integrated Data Set) User Acceptance Testing (UAT) with a rich CLI.
 
 ## 📋 Overview
 
-The OLIDS UAT Testing Framework provides comprehensive validation of healthcare data quality across multiple dimensions:
+The OLIDS UAT Testing Framework provides validation of healthcare data quality across multiple dimensions:
 
 - **Data Quality**: NULL column detection, table completeness, field validation
 - **Referential Integrity**: Foreign key relationship validation across 127 relationships
@@ -84,7 +67,7 @@ README.md
 - Snow CLI installed and configured (for authentication)
 - Access to OLIDS databases in Snowflake
 
-### Installation (quick)
+### Setup
 
 1. **Clone Repository**
    ```bash
