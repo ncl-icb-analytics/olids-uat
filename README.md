@@ -71,7 +71,7 @@ README.md
 
 1. **Clone Repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/ncl-icb-analytics/olids-uat
    cd olids-uat
    ```
 
