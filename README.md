@@ -9,7 +9,7 @@ A scalable testing framework for OLIDS (One London Integrated Data Set) User Acc
 The OLIDS UAT Testing Framework provides validation of healthcare data quality across multiple dimensions:
 
 - **Data Quality**: NULL column detection, table completeness, field validation
-- **Referential Integrity**: Foreign key relationship validation across 127 relationships
+- **Referential Integrity**: Foreign key relationship validation across 85 relationships
 - **Concept Mapping**: Terminology validation through CONCEPT_MAP → CONCEPT chains
 - **Business Rules**: Person/patient validation patterns and clinical data quality
 
