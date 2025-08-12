@@ -62,6 +62,26 @@ pyproject.toml
 README.md
 ```
 
+## 🛠️ Technology Stack
+
+### Core Technologies
+- **Python 3.10+**: Modern Python for type safety and performance
+- **Snowflake Snowpark** (v1.33.0+): Native Python API for Snowflake data processing
+- **Snow CLI** (v3.10.0+): Snowflake's command-line tool for authentication and deployment
+- **Click** (v8.1.8): Command-line interface framework for building the CLI
+- **Rich** (v14.0.0): Terminal formatting library for beautiful console output
+
+### Data & Configuration
+- **Pydantic** (v2.11.7): Data validation using Python type annotations
+- **PyYAML** (v6.0.2): YAML configuration file parsing
+
+### Development Tools (Optional)
+- **black** (v25.1.0): Code formatter
+- **isort** (v6.0.1): Import statement organizer
+- **flake8** (v7.3.0): Linting and style checking
+- **mypy** (v1.17.1): Static type checking
+- **pre-commit** (v4.3.0): Git hooks for code quality
+
 ## 🛠️ Installation & Setup
 
 ### Prerequisites
