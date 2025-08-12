@@ -338,7 +338,7 @@ Top-level YAMLs define mappings and rules (see files in `config/`).
 - **SSO Integration**: Uses Snowflake SSO through Snow CLI
 - **No Stored Credentials**: Authentication handled externally
 - **Environment Isolation**: Separate configurations per environment
-- **Audit Trail**: SQL query logging for compliance
+- **Audit Trail**: SQL query logging to support further investigation
 
 ### Troubleshooting Authentication
 
