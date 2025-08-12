@@ -2,6 +2,8 @@
 
 A scalable testing framework for OLIDS (One London Integrated Data Set) User Acceptance Testing (UAT) with a rich CLI.
 
+<img width="2122" height="1184" alt="image" src="https://github.com/user-attachments/assets/5ea35d8f-fe0e-4458-b6b4-f014b3e34079" />
+
 ## 📋 Overview
 
 The OLIDS UAT Testing Framework provides validation of healthcare data quality across multiple dimensions:
@@ -15,6 +17,7 @@ The OLIDS UAT Testing Framework provides validation of healthcare data quality a
 
 - YAML-driven configuration
 - Rich CLI with progress and colour
+- Environment switching
 - Parallel execution
 - Table/JSON/CSV outputs
 - Results include totals, failures, success rate, and timing
