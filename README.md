@@ -77,8 +77,7 @@ README.md
 
 2. **Create Virtual Environment**
    ```bash
-   python -m venv venv
-   venv\Scripts\activate
+   python -m venv venv && venv\Scripts\activate
    ```
 
 3. **Install Framework**
