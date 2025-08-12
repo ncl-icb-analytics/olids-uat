@@ -125,15 +125,12 @@ class ConceptMappingTest(BaseTest):
                     # Check if this has data quality issues (NULL display only)
                     has_data_quality_issues = (breakdown.get('distinct_null_display', 0) > 0)
                     
-                    if has_mapping_issues and not has_data_quality_issues:
-                        # Pure mapping failure
+                    # Add to mapping failures if it has mapping issues
+                    if has_mapping_issues:
                         mapping_failures.append(result)
-                    elif has_data_quality_issues and not has_mapping_issues:
-                        # Pure data quality failure
-                        data_quality_failures.append(result)
-                    elif has_mapping_issues and has_data_quality_issues:
-                        # Mixed failure - add to both sections
-                        mapping_failures.append(result)
+                    
+                    # Add to data quality failures if it has data quality issues
+                    if has_data_quality_issues:
                         data_quality_failures.append(result)
             
             if failed_tests > 0:
@@ -149,6 +146,7 @@ class ConceptMappingTest(BaseTest):
                         
                         total_records = result.get('total_tested', 1)  # Avoid division by zero
                         
+                        # Only mapping issues in this section
                         if breakdown.get('distinct_no_concept_map_match', 0) > 0:
                             distinct_count = breakdown['distinct_no_concept_map_match']
                             record_count = breakdown.get('no_concept_map_match', 0)
@@ -165,7 +163,8 @@ class ConceptMappingTest(BaseTest):
                             percentage = (record_count / total_records * 100) if total_records > 0 else 0
                             mapping_issues.append(f"{distinct_count:,} concept IDs with NULL code ({record_count:,} records, {percentage:.1f}%)")
                         
-                        failure_details.append(f"  • {result['test_name']}: {', '.join(mapping_issues)}")
+                        if mapping_issues:  # Only show if there are actual mapping issues
+                            failure_details.append(f"  • {result['test_name']}: {', '.join(mapping_issues)}")
                     
                     failure_details.append("")  # Empty line between sections
                 

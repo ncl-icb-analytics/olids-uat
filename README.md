@@ -77,7 +77,7 @@ README.md
 
 ### Development Tools (Optional)
 - **black** (v25.1.0): Code formatter
-- **isort** (v6.0.1): Import statement organizer
+- **isort** (v6.0.1): Import statement organiser
 - **flake8** (v7.3.0): Linting and style checking
 - **mypy** (v1.17.1): Static type checking
 - **pre-commit** (v4.3.0): Git hooks for code quality
@@ -308,7 +308,7 @@ execution:
 **Snow CLI Connection Configuration:**
 - **Automatic Default Detection**: Framework automatically uses your default Snow CLI connection
 - **Environment-Specific Connections**: Optionally specify `snow_cli_connection` per environment
-- **Centralized Management**: All connection details managed through Snow CLI (account, role, warehouse, authentication)
+- **Centralised Management**: All connection details managed through Snow CLI (account, role, warehouse, authentication)
 - **Minimal Configuration**: Environment configs only need databases and schemas - connection details are automatic
 - **Optional Overrides**: Available if needed (account, role, warehouse, host)
 
@@ -443,6 +443,6 @@ olids-test config show --environment uat
 
 The `config/environments/template.yml` serves as the reference for creating environment-specific configurations.
 
-## 📄 License
+## 📄 Licence
 
-This repository is dual licensed under the Open Government v3 & MIT. All code outputs are subject to Crown Copyright.
+This repository is dual licenced under the Open Government v3 & MIT. All code outputs are subject to Crown Copyright.
