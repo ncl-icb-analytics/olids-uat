@@ -407,7 +407,7 @@ olids-test config show --environment uat
 
 ```bash
 # Clone and setup development environment
-git clone <repository-url>
+git clone https://github.com/ncl-icb-analytics/olids-uat
 cd olids-uat
 python -m venv venv
 source venv/bin/activate  # Unix/Mac
