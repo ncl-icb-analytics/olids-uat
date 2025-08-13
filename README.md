@@ -17,8 +17,9 @@ The OLIDS UAT Testing Framework provides validation of healthcare data quality a
 
 - YAML-driven configuration
 - Rich CLI with progress and colour
+- Multiple test execution support
 - Environment switching
-- Parallel execution
+- Parallel execution with real-time progress
 - Table/JSON/CSV outputs
 - Results include totals, failures, success rate, and timing
 
@@ -211,7 +212,7 @@ olids-test validate
 olids-test list
 
 # 4. Run a quick test to verify everything works
-olids-test run suite empty_tables
+olids-test run empty_tables
 ```
 
 ### Environment Management
@@ -242,7 +243,7 @@ olids-test run all              # Run all validations
 
 **Investigating Issues:**
 ```bash
-olids-test run suite referential_integrity --show-passes
+olids-test run referential_integrity --show-passes
 ls -la sql_logs/               # Review SQL queries executed
 ```
 
@@ -266,8 +267,10 @@ olids-test validate                 # Check setup
 # Test execution
 olids-test list                     # View available test suites
 olids-test run all                  # Run all test suites
-olids-test run suite referential_integrity   # Run specific suite
-olids-test run suite null_columns --show-passes  # With detailed output
+olids-test run referential_integrity   # Run specific test
+olids-test run null_columns empty_tables  # Run multiple tests
+olids-test run all --parallel       # Run with parallel execution display
+olids-test run null_columns --show-passes  # With detailed output
 
 # Configuration
 olids-test config show              # View current config
