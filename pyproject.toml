@@ -47,9 +47,9 @@ dev = [
 olids-test = "olids_testing.cli.main:cli"
 
 [project.urls]
-Homepage = "https://github.com/ncl-icb-analytics/olids-uat
+Homepage = "https://github.com/ncl-icb-analytics/olids-uat"
 Repository = "https://github.com/ncl-icb-analytics/olids-uat.git"
-Issues = "https://github.com/ncl-icb-analytics/olids-uatg/issues"
+Issues = "https://github.com/ncl-icb-analytics/olids-uat/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/olids_testing"]
