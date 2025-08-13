@@ -76,18 +76,22 @@ class ConceptMappingTest(BaseTest):
         
         current_test = 0
         
+        # Check if we should show progress
+        show_progress = not context.config.get('parallel_execution', False)
+        
         try:
             # Execute each concept mapping test
             for test_config in tests:
                 current_test += 1
                 
-                # Show progress
+                # Show progress only if not in parallel execution mode
                 source_table = test_config.get('source_table', 'unknown')
                 concept_field = test_config.get('concept_field', 'unknown')
                 test_name = f"{source_table}.{concept_field}"
                 
-                sys.stdout.write(f"\r  Running concept mapping tests [{current_test}/{total_tests}]: {test_name}")
-                sys.stdout.flush()
+                if show_progress:
+                    sys.stdout.write(f"\r  Running concept mapping tests [{current_test}/{total_tests}]: {test_name}")
+                    sys.stdout.flush()
                 
                 # Execute the concept mapping test
                 test_result = self._execute_concept_mapping_test(
@@ -99,11 +103,12 @@ class ConceptMappingTest(BaseTest):
                 if not test_result['passed']:
                     failed_tests += 1
             
-            # Clear progress line completely
-            # Use a much larger space buffer to ensure we clear any long test names
-            clear_line = " " * 120  # Clear up to 120 characters
-            sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
-            sys.stdout.flush()
+            if show_progress:
+                # Clear progress line completely
+                # Use a much larger space buffer to ensure we clear any long test names
+                clear_line = " " * 120  # Clear up to 120 characters
+                sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
+                sys.stdout.flush()
             
             # Build failure details with separated sections
             failure_details = []

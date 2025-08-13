@@ -105,9 +105,27 @@ README.md
   ```
 
 3. **Install Framework**
+   
+   **Option A: Local Virtual Environment (Recommended for development)**
   ```bash
    pip install -e .
   ```
+   
+   **Option B: Global Installation with pipx (Recommended for CLI usage)**
+  ```bash
+   # Install pipx if not already installed
+   pip install pipx
+   python -m pipx ensurepath  # Add pipx to PATH
+   
+   # Install olids-test globally
+   pipx install -e path/to/olids-uat
+  ```
+   
+   Benefits of pipx installation:
+   - `olids-test` command available globally from any directory
+   - Isolated environment prevents dependency conflicts
+   - Easy updates and clean uninstallation
+   - Editable install (-e) reflects code changes immediately
 
 4. **Install and Configure Snow CLI**
    

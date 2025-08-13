@@ -76,6 +76,9 @@ class PersonPatternTest(BaseTest):
         
         current_test = 0
         
+        # Check if we should show progress
+        show_progress = not context.config.get('parallel_execution', False)
+        
         try:
             # Execute each category of tests
             for category, config in self.pattern_config.items():
@@ -87,10 +90,11 @@ class PersonPatternTest(BaseTest):
                 for test_config in config['tests']:
                     current_test += 1
                     
-                    # Show progress
+                    # Show progress only if not in parallel execution mode
                     test_name = test_config.get('name', f'unnamed_{category}_test')
-                    sys.stdout.write(f"\r  Running person pattern tests [{current_test}/{total_tests}]: {test_name}")
-                    sys.stdout.flush()
+                    if show_progress:
+                        sys.stdout.write(f"\r  Running person pattern tests [{current_test}/{total_tests}]: {test_name}")
+                        sys.stdout.flush()
                     
                     # Execute the configured test based on its type
                     test_result = self._execute_configured_test(
@@ -102,10 +106,11 @@ class PersonPatternTest(BaseTest):
                     if not test_result['passed']:
                         failed_tests += 1
             
-            # Clear progress line completely
-            clear_line = " " * 120  # Clear up to 120 characters
-            sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
-            sys.stdout.flush()
+            if show_progress:
+                # Clear progress line completely
+                clear_line = " " * 120  # Clear up to 120 characters
+                sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
+                sys.stdout.flush()
             
             # Build failure details
             failure_details = []

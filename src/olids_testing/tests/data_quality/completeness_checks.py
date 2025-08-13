@@ -64,6 +64,9 @@ class AllNullColumnsTest(BaseTest):
             total_checked = 0
             errors = []
             
+            # Check if we should show progress
+            show_progress = not context.config.get('parallel_execution', False)
+            
             # Simple progress reporting with just x/total status
             import sys
             
@@ -73,8 +76,9 @@ class AllNullColumnsTest(BaseTest):
                 columns_list = row['COLUMNS'].split(',') if row['COLUMNS'] else []
                 
                 # Show simple progress status with proper overwrite
-                sys.stdout.write(f"\r  Checking tables for NULL-only columns [{i+1}/{len(tables)}]")
-                sys.stdout.flush()
+                if show_progress:
+                    sys.stdout.write(f"\r  Checking tables for NULL-only columns [{i+1}/{len(tables)}]")
+                    sys.stdout.flush()
                 
                 # Skip tables with no columns or empty column list
                 if not columns_list or not row['COLUMNS']:
@@ -161,9 +165,10 @@ class AllNullColumnsTest(BaseTest):
                     total_checked += len(columns_list)
                 
             # Clear progress line completely
-            clear_line = " " * 120  # Clear up to 120 characters
-            sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
-            sys.stdout.flush()
+            if show_progress:
+                clear_line = " " * 120  # Clear up to 120 characters
+                sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
+                sys.stdout.flush()
             
             # Determine test status and failure details
             failed_records = len(all_null_columns)
@@ -286,6 +291,9 @@ class EmptyTablesTest(BaseTest):
             total_checked = 0
             errors = []
             
+            # Check if we should show progress
+            show_progress = not context.config.get('parallel_execution', False)
+            
             # Simple progress reporting with just x/total status
             import sys
             
@@ -294,8 +302,9 @@ class EmptyTablesTest(BaseTest):
                 table_name = row['TABLE_NAME']
                 
                 # Show simple progress status
-                sys.stdout.write(f"\r  Checking tables for empty data [{i+1}/{len(tables)}]")
-                sys.stdout.flush()
+                if show_progress:
+                    sys.stdout.write(f"\r  Checking tables for empty data [{i+1}/{len(tables)}]")
+                    sys.stdout.flush()
                 
                 try:
                     # Check if table has any rows
@@ -347,9 +356,10 @@ class EmptyTablesTest(BaseTest):
                     total_checked += 1
                 
             # Clear progress line completely
-            clear_line = " " * 120  # Clear up to 120 characters
-            sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
-            sys.stdout.flush()
+            if show_progress:
+                clear_line = " " * 120  # Clear up to 120 characters
+                sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
+                sys.stdout.flush()
             
             # Determine test status and failure details
             failed_records = len(empty_tables)
@@ -472,13 +482,17 @@ class ColumnCompletenessTest(BaseTest):
             total_checks = len(self.completeness_rules)
             current_check = 0
             
+            # Check if we should show progress
+            show_progress = not context.config.get('parallel_execution', False)
+            
             import sys
             
             for table_column, rule in self.completeness_rules.items():
                 current_check += 1
                 # Show progress indicator
-                sys.stdout.write(f"\r  Checking column completeness [{current_check}/{total_checks}]: {table_column}")
-                sys.stdout.flush()
+                if show_progress:
+                    sys.stdout.write(f"\r  Checking column completeness [{current_check}/{total_checks}]: {table_column}")
+                    sys.stdout.flush()
                 try:
                     table_name, column_name = table_column.split('.')
                     schema_name = rule['schema']
@@ -544,9 +558,10 @@ class ColumnCompletenessTest(BaseTest):
                     })
             
             # Clear progress line completely
-            clear_line = " " * 120  # Clear up to 120 characters
-            sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
-            sys.stdout.flush()
+            if show_progress:
+                clear_line = " " * 120  # Clear up to 120 characters
+                sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
+                sys.stdout.flush()
             
             # Build failure details
             failure_details = []

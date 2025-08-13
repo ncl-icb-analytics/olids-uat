@@ -101,13 +101,15 @@ class ReferentialIntegrityTest(BaseTest):
             total_violations = 0
             skipped_relationships = 0
             
-            # Simple progress reporting with x/total status  
+            # Show progress only if not in parallel execution mode
             import sys
+            show_progress = not context.config.get('parallel_execution', False)
             
             for i, relationship in enumerate(self.relationships):
-                # Show simple progress status with proper overwrite
-                sys.stdout.write(f"\r  Validating referential integrity relationships [{i+1}/{total_relationships}]")
-                sys.stdout.flush()
+                if show_progress:
+                    # Show simple progress status with proper overwrite
+                    sys.stdout.write(f"\r  Validating referential integrity relationships [{i+1}/{total_relationships}]")
+                    sys.stdout.flush()
                 
                 result = self._validate_relationship(
                     session, source_db, schema, relationship, available_columns
@@ -119,10 +121,11 @@ class ReferentialIntegrityTest(BaseTest):
                 elif result['status'] == 'VIOLATED':
                     total_violations += result['violation_count']
             
-            # Clear progress line completely
-            clear_line = " " * 120  # Clear up to 120 characters
-            sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
-            sys.stdout.flush()
+            if show_progress:
+                # Clear progress line completely
+                clear_line = " " * 120  # Clear up to 120 characters
+                sys.stdout.write(f"\r{clear_line}\r")  # Clear the entire line
+                sys.stdout.flush()
             
             # Build failure details - ensure no duplicates
             failure_details = []

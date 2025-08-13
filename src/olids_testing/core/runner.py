@@ -220,7 +220,7 @@ class TestRunner:
         return results
     
     def _run_tests_parallel(self, test_names: List[str], show_progress: bool, suite_name: str = "tests") -> List[TestResult]:
-        """Run tests in parallel.
+        """Run tests in parallel with enhanced progress tracking.
         
         Args:
             test_names: List of test names to run
@@ -229,46 +229,26 @@ class TestRunner:
         Returns:
             List of test results
         """
-        max_workers = min(self.env_config.execution.parallel_workers, len(test_names))
-        results = []
+        from .parallel_runner import ParallelTestRunner
         
-        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-            if show_progress:
-                with Progress(
-                    SpinnerColumn(),
-                    TextColumn("[progress.description]{task.description}"),
-                    BarColumn(), 
-                    TaskProgressColumn(),
-                    console=self.console
-                ) as progress:
-                    task = progress.add_task(f"Running {suite_name} in parallel...", total=len(test_names))
-                    
-                    # Submit all tests
-                    future_to_test = {
-                        executor.submit(self.run_test, test_name, False): test_name
-                        for test_name in test_names
-                    }
-                    
-                    # Collect results as they complete
-                    for future in concurrent.futures.as_completed(future_to_test):
-                        test_name = future_to_test[future]
-                        try:
-                            result = future.result()
-                            results.append(result)
-                        except Exception as e:
-                            # Create error result for failed test
-                            error_result = TestResult(
-                                test_name=test_name,
-                                test_description=f"Test {test_name}",
-                                status=TestStatus.ERROR,
-                                error_message=str(e)
-                            )
-                            results.append(error_result)
-                        
-                        progress.advance(task)
-                        progress.update(task, description=f"Completed: {test_name}")
-            else:
-                # Run without progress display
+        # Use enhanced parallel runner for better progress tracking
+        parallel_runner = ParallelTestRunner(
+            self.env_config,
+            max_workers=min(self.env_config.execution.parallel_workers, len(test_names))
+        )
+        
+        # Organize tests by suite for the parallel runner
+        test_suites = {suite_name: [(name, self._tests[name]) for name in test_names]}
+        
+        # Run with enhanced progress display
+        if show_progress:
+            results = parallel_runner.run_all(test_suites)
+        else:
+            # Fall back to simple parallel execution without progress
+            max_workers = min(self.env_config.execution.parallel_workers, len(test_names))
+            results = []
+            
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
                 future_to_test = {
                     executor.submit(self.run_test, test_name, False): test_name
                     for test_name in test_names
@@ -304,8 +284,28 @@ class TestRunner:
         Returns:
             List of test results
         """
-        test_names = list(self._tests.keys())
-        return self.run_tests(test_names, parallel=parallel, show_progress=show_progress)
+        if parallel and show_progress:
+            # Use enhanced parallel runner for "run all" with better suite organization
+            from .parallel_runner import ParallelTestRunner
+            
+            parallel_runner = ParallelTestRunner(
+                self.env_config,
+                max_workers=self.env_config.execution.parallel_workers
+            )
+            
+            # Organize each individual test as its own suite for better tracking
+            test_suites = {}
+            for test_name, test_instance in self._tests.items():
+                test_suites[test_name] = [(test_name, test_instance)]
+            
+            # Debug: print what suites we're running
+            # self.console.print(f"[dim]Debug: Running suites: {list(test_suites.keys())}[/dim]")
+            
+            return parallel_runner.run_all(test_suites)
+        else:
+            # Fall back to simple execution
+            test_names = list(self._tests.keys())
+            return self.run_tests(test_names, parallel=parallel, show_progress=show_progress)
     
     def get_summary(self, results: List[TestResult]) -> Dict[str, int]:
         """Get test execution summary.

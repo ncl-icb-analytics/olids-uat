@@ -18,7 +18,7 @@ if str(src_path) not in sys.path:
 from olids_testing.core.config import Config
 from olids_testing.core.runner import TestRunner
 from .commands.config_cmd import config_group
-from .commands.run_cmd import run_group
+from .commands.run_cmd import run_command
 from .commands.deploy_cmd import deploy_group
 
 
@@ -204,8 +204,8 @@ def quickstart(ctx: click.Context):
     guide_text.append("4. Run all tests:\n", style="bold")
     guide_text.append("   olids-test run all\n\n", style="bright_black")
     
-    guide_text.append("5. Run a specific test suite:\n", style="bold")
-    guide_text.append("   olids-test run suite referential_integrity\n\n", style="bright_black")
+    guide_text.append("5. Run specific tests:\n", style="bold")
+    guide_text.append("   olids-test run null_columns empty_tables\n\n", style="bright_black")
     
     guide_text.append("6. Run with detailed output:\n", style="bold")
     guide_text.append("   olids-test run all --show-passes\n\n", style="bright_black")
@@ -223,7 +223,6 @@ def quickstart(ctx: click.Context):
     
     guide_text.append("EXPLORE MORE\n\n", style="bold yellow")
     guide_text.append("• View configuration:    olids-test config show\n", style="white")
-    guide_text.append("• Check status:          olids-test run status\n", style="white")
     guide_text.append("• Show framework info:   olids-test info\n", style="white")
     guide_text.append("• Get help on any command: olids-test COMMAND --help\n", style="white")
     
@@ -233,7 +232,7 @@ def quickstart(ctx: click.Context):
 
 # Add command groups
 cli.add_command(config_group)
-cli.add_command(run_group)
+cli.add_command(run_command)
 cli.add_command(deploy_group)
 
 
