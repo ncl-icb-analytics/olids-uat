@@ -55,10 +55,10 @@ def display_config(config: Config, env_config: EnvironmentConfig, environment: s
         console.print(json.dumps(config_data, indent=2))
         return
     
-    # Table format
+    # Table format (use higher-contrast styles for readability)
     table = Table(title=f"Configuration - {environment.upper()}", box=box.SIMPLE_HEAD)
     table.add_column("Category", style="cyan", no_wrap=True)
-    table.add_column("Setting", style="magenta")
+    table.add_column("Setting", style="white")
     table.add_column("Value", style="green")
     
     # Environment info
@@ -106,7 +106,7 @@ def display_validation_results(config_ok: bool, connection_ok: bool, config: Con
     table = Table(title="Validation Results", box=box.SIMPLE_HEAD)
     table.add_column("Component", style="cyan", no_wrap=True)
     table.add_column("Status", style="bold")
-    table.add_column("Details", style="dim")
+    table.add_column("Details", style="white")
     
     # Configuration validation
     config_status = "[green]PASS[/green]" if config_ok else "[red]FAIL[/red]"
@@ -162,7 +162,7 @@ def display_status(connection_status: Dict, test_count: int, suite_count: int, e
     table = Table(title=f"Test Runner Status - {environment.upper()}", box=box.SIMPLE_HEAD)
     table.add_column("Component", style="cyan", no_wrap=True)
     table.add_column("Status", style="bold")
-    table.add_column("Details", style="dim")
+    table.add_column("Details", style="white")
     
     # Connection status
     conn_ok = connection_status.get("status") == "OK"
@@ -176,8 +176,8 @@ def display_status(connection_status: Dict, test_count: int, suite_count: int, e
         table.add_row("Connection", "[red]DISCONNECTED[/red]", error_msg)
     
     # Test availability
-    table.add_row("Tests", f"[blue]{test_count}[/blue]", "Individual tests available")
-    table.add_row("Test Suites", f"[blue]{suite_count}[/blue]", "Test suites available")
+        table.add_row("Tests", f"[bright_cyan]{test_count}[/bright_cyan]", "Individual tests available")
+        table.add_row("Test Suites", f"[bright_cyan]{suite_count}[/bright_cyan]", "Test suites available")
     
     console.print(table)
 
@@ -226,7 +226,7 @@ def display_test_list(config: Config, output_format: str = "table"):
     suite_table = Table(title="Available Test Suites", box=box.SIMPLE_HEAD)
     suite_table.add_column("Name", style="cyan", no_wrap=True)
     suite_table.add_column("Description", style="white")
-    suite_table.add_column("Data Tests", style="magenta")
+    suite_table.add_column("Data Tests", style="bright_cyan")
     
     # Calculate total data tests for the "all" suite
     total_all_tests = 0
@@ -407,13 +407,13 @@ def _display_results_summary(results: List[TestResult]):
         summary_text.append("██║       ██║  ██║   ██║   ███████╗   \n", style="bold red")
         summary_text.append("╚═╝       ╚═╝  ╚═╝   ╚═╝   ╚══════╝   \n\n", style="bold red")
     
-    summary_text.append("Test Results Summary\n", style="bold blue")
+    summary_text.append("Test Results Summary\n", style="bold white")
     summary_text.append(f"Test Suites: {summary['total_tests']}\n")
     
     # If we have sub-checks, show them too
     if total_subchecks > 0:
-        summary_text.append(f"Data Tests: {total_subchecks} ", style="dim")
-        summary_text.append(f"({failed_subchecks} failed)\n", style="dim red")
+        summary_text.append(f"Data Tests: {total_subchecks} ", style="white")
+        summary_text.append(f"({failed_subchecks} failed)\n", style="bold red")
     
     summary_text.append(f"Passed: {summary['passed']}\n", style="green")
     summary_text.append(f"Failed: {summary['failed']}\n", style="red")
@@ -432,13 +432,13 @@ def _display_results_summary(results: List[TestResult]):
 def _display_results_table(results: List[TestResult]):
     """Display results in table format."""
     # Use simpler box style for better Windows compatibility
-    table = Table(title="Detailed Test Suite Results", box=box.SIMPLE_HEAD, border_style="bright_black")
+    table = Table(title="Detailed Test Suite Results", box=box.SIMPLE_HEAD, border_style="white")
     table.add_column("Test Suite", style="cyan", no_wrap=True)
     table.add_column("Status", style="bold")
-    table.add_column("Data Tests", justify="right", style="blue")
+    table.add_column("Data Tests", justify="right", style="bright_cyan")
     table.add_column("Failed", justify="right", style="red")
     table.add_column("Success %", justify="right", style="green")
-    table.add_column("Time (s)", justify="right", style="dim")
+    table.add_column("Time (s)", justify="right", style="white")
     
     for result in results:
         status_text = {

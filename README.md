@@ -190,7 +190,7 @@ olids-test quickstart
 olids-test validate
 
 # 3. View available test suites
-olids-test list-tests
+olids-test list
 
 # 4. Run a quick test to verify everything works
 olids-test run suite empty_tables
@@ -246,10 +246,10 @@ olids-test info                     # Show current environment
 olids-test validate                 # Check setup
 
 # Test execution
-olids-test list-tests               # View available test suites
+olids-test list                     # View available test suites
 olids-test run all                  # Run all test suites
 olids-test run suite referential_integrity   # Run specific suite
-olids-test run suite all_null_columns --show-passes  # With detailed output
+olids-test run suite null_columns --show-passes  # With detailed output
 
 # Configuration
 olids-test config show              # View current config
@@ -263,7 +263,7 @@ olids-test config validate         # Validate config files
 | `referential_integrity` | 85 | Foreign key relationship validation |
 | `concept_mapping` | 28 | Terminology mapping validation |  
 | `person_patterns` | 13 | Business rule validation |
-| `all_null_columns` | 710 | NULL column detection |
+| `null_columns` | 710 | NULL column detection |
 | `empty_tables` | 28 | Empty table detection |
 | `column_completeness` | 6 | Column completeness validation |
 
@@ -326,7 +326,7 @@ Define test suites in `config/test_suites.yml`:
 data_quality:
   description: "Data quality and completeness validation"
   tests:
-    - all_null_columns
+- null_columns
     - empty_tables
     - column_completeness
 ```

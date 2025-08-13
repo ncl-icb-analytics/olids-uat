@@ -1,27 +1,33 @@
 # Environment Configuration Template for OLIDS UAT Testing Framework
 # Copy this file to create your environment-specific configuration
-# Example: cp template.yml uat.yml
+# Example: copy to dev/uat/prod and adjust values.
 
-description: "OLIDS Environment - Replace with your environment description"
+name: "dev"  # One of: dev, uat, prod
+description: "Development environment"
 
 # Database configuration
 databases:
-  source: "Data_Store_OLIDS_UAT"        # Main OLIDS database
-  terminology: "Data_Store_OLIDS_UAT"   # Terminology database (often same as source)
-  results: "DATA_LAB_OLIDS_UAT"         # Results database for test outputs
-  dictionary: "Dictionary"              # Data dictionary database
+  source: "YOUR_SOURCE_DB"         # Main OLIDS database
+  terminology: "YOUR_TERMINOLOGY_DB"  # Terminology database (often same as source)
+  results: "YOUR_RESULTS_DB"        # Results database for test outputs
+  dictionary: "YOUR_DICTIONARY_DB"  # Data dictionary database
+
+# Output configuration for CLI/UI
+output:
+  default_format: "table"           # table | json
+  export_formats: ["json", "csv"]  # Allowed export formats
+  max_display_rows: 100              # Maximum rows to display in terminal
 
 # Schema configuration
 schemas:
-  masked: "OLIDS_MASKED"           # Main data schema
-  terminology: "OLIDS_TERMINOLOGY" # Terminology schema
-  tests: "TESTS"                   # Test results schema
+  masked: "YOUR_MASKED_SCHEMA"           # Main data schema
+  terminology: "YOUR_TERMINOLOGY_SCHEMA" # Terminology schema
+  tests: "YOUR_TESTS_SCHEMA"             # Test results schema
 
 # Snowflake connection details
-# Most connection settings are defined in your Snow CLI connection
+# Prefer using a Snow CLI connection; optional fields can override if needed
 connection:
   snow_cli_connection: "your-connection-name"  # Snow CLI connection name (leave empty to use default)
-  
   # Optional overrides (only needed if different from Snow CLI connection):
   # account: "your-snowflake-account"         # e.g., "abc12345.eu-west-1"
   # role: "YOUR_ROLE"                         # e.g., "OLIDS_USER_ROLE"
@@ -45,10 +51,8 @@ execution:
 # Instructions:
 # 1. Copy this file: cp config/environments/template.yml config/environments/your-env.yml
 # 2. Replace placeholders with your actual values:
-#    - YOUR_ENV: Your environment name (e.g., UAT, DEV, PROD)
-#    - your-snowflake-account: Your Snowflake account identifier
-#    - YOUR_ROLE: Your Snowflake role with appropriate permissions
-#    - YOUR_WAREHOUSE: Your Snowflake warehouse for running queries
-#    - your-connection-name: (Optional) Your Snow CLI connection name for this environment
+#    - name: dev | uat | prod
+#    - YOUR_* placeholders for databases and schemas
+#    - your-connection-name for your Snow CLI connection
 # 3. Ensure your Snow CLI is configured with matching credentials
-# 4. Test connection: python -m olids_testing.cli.main config show --environment your-env
+# 4. Validate setup: olids-test validate

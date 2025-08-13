@@ -6,7 +6,7 @@ test_suites:
       - referential_integrity
       - concept_mapping
       - person_patterns
-      - all_null_columns
+      - null_columns
       - empty_tables
       - column_completeness
     
@@ -25,10 +25,10 @@ test_suites:
     tests:
       - person_patterns
       
-  all_null_columns:
+  null_columns:
     description: "Identify columns with 100% NULL values across all tables"
     tests:
-      - all_null_columns
+      - null_columns
       
   empty_tables:
     description: "Identify tables with zero rows"
@@ -44,7 +44,7 @@ test_suites:
 test_config:
   
   # Data Quality Tests
-  all_null_columns:
+  null_columns:
     description: "Identify columns with 100% NULL values across all tables"
     timeout: 300
     priority: high

@@ -120,7 +120,7 @@ def info(ctx: click.Context):
     console.print(panel)
 
 
-@cli.command()
+@cli.command(name="list")
 @click.option(
     "--output", "-o",
     type=click.Choice(["table", "json"]),
@@ -196,7 +196,7 @@ def quickstart(ctx: click.Context):
     guide_text.append("   olids-test validate\n\n", style="bright_black")
     
     guide_text.append("2. View available tests:\n", style="bold")
-    guide_text.append("   olids-test list-tests\n\n", style="bright_black")
+    guide_text.append("   olids-test list\n\n", style="bright_black")
     
     guide_text.append("3. Switch environment:\n", style="bold")
     guide_text.append("   olids-test switch dev\n\n", style="bright_black")
@@ -217,7 +217,7 @@ def quickstart(ctx: click.Context):
     guide_text.append("• referential_integrity - All 85 foreign key relationship validations\n", style="white")
     guide_text.append("• concept_mapping       - Terminology mapping validation\n", style="white")
     guide_text.append("• person_patterns       - Business rule validation\n", style="white")
-    guide_text.append("• all_null_columns      - NULL column detection\n", style="white")
+    guide_text.append("• null_columns          - NULL column detection\n", style="white")
     guide_text.append("• empty_tables          - Empty table detection\n", style="white")
     guide_text.append("• column_completeness   - Column completeness validation\n\n", style="white")
     

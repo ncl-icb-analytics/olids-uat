@@ -7,7 +7,7 @@ from .referential_integrity import ReferentialIntegrityTest
 
 # Main test registry - these are included in "run all" 
 TEST_REGISTRY = {
-    'all_null_columns': AllNullColumnsTest,
+    'null_columns': AllNullColumnsTest,
     'empty_tables': EmptyTablesTest,
     'column_completeness': ColumnCompletenessTest,
     'referential_integrity': ReferentialIntegrityTest,
@@ -21,7 +21,7 @@ ALL_TESTS_REGISTRY = TEST_REGISTRY
 # Category mappings
 TEST_CATEGORIES = {
     'data_quality': [
-        'all_null_columns',
+        'null_columns',
         'empty_tables',
         'column_completeness',
     ],

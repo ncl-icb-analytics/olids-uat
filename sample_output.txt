@@ -1,7 +1,7 @@
 (venv) PS C:\Projects\olids-uat> olids-test run all
 Running all tests
 Running 6 tests
-  [1/6] all_null_columns - completed
+[1/6] null_columns - completed
   [2/6] empty_tables - completed
   [3/6] column_completeness - completed
   [4/6] referential_integrity - completed
@@ -30,7 +30,7 @@ SQL queries logged: 193 queries saved to C:\Projects\olids-uat\sql_logs
 
   Test Suite              Status   Data Tests   Failed   Success %   Time (s)  
  ───────────────────────────────────────────────────────────────────────────── 
-  all_null_columns        PASS            710        0      100.0%       4.96 
+null_columns           PASS            710        0      100.0%       4.96
   empty_tables            FAIL             28        2       92.9%       3.11 
   column_completeness     FAIL              6        1       83.3%       6.54 
   referential_integrity   FAIL             85       44       48.2%       8.02 

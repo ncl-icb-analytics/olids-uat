@@ -20,7 +20,7 @@ class AllNullColumnsTest(BaseTest):
             schemas: List of schema names to check. If None, uses default schemas.
         """
         super().__init__(
-            name="all_null_columns",
+            name="null_columns",
             description="Identifies columns that contain only NULL values",
             category="data_quality"
         )
@@ -211,7 +211,7 @@ class AllNullColumnsTest(BaseTest):
                 metadata={
                     'schemas_checked': self.schemas,
                     'columns_checked': total_checked,
-                    'all_null_columns': all_null_columns,
+                    'null_columns': all_null_columns,
                     'errors': errors
                 }
             )
