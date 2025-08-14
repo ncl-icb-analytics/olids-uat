@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from snowflake.snowpark import Session
 
@@ -89,6 +89,7 @@ class TestContext:
     schemas: Dict[str, str]
     session: Session
     config: Dict[str, Any]
+    progress_callback: Optional[Callable[[int], None]] = None
     
     def get_full_table_name(self, database_key: str, schema_key: str, table_name: str) -> str:
         """Get fully qualified table name.
@@ -253,6 +254,206 @@ class SQLTest(BaseTest):
                 status=TestStatus.ERROR,
                 error_message=f"SQL execution failed: {str(e)}"
             )
+
+
+class StandardSQLTest(BaseTest):
+    """Base class for SQL-based tests with consistent output format."""
+    
+    def __init__(self, name: str, description: str, sql_query: str, category: str = "sql", 
+                 failure_threshold: Optional[float] = None):
+        """Initialize SQL test.
+        
+        Args:
+            name: Test name
+            description: Test description
+            sql_query: SQL query that returns consistent output format
+            category: Test category
+            failure_threshold: Optional failure threshold override (0.0-100.0 as percentage)
+        """
+        super().__init__(name, description, category)
+        self.sql_query = sql_query
+        self.failure_threshold = failure_threshold
+    
+    def get_failure_threshold(self, context: TestContext) -> float:
+        """Get failure threshold for this test.
+        
+        Args:
+            context: Test execution context
+            
+        Returns:
+            Failure threshold as percentage (0.0-100.0)
+        """
+        # Check for test-specific threshold override
+        if self.failure_threshold is not None:
+            return self.failure_threshold
+        
+        # Check context config for test-specific threshold
+        thresholds = context.config.get('failure_thresholds', {})
+        if self.name in thresholds:
+            return float(thresholds[self.name])
+        
+        # Check for category-specific threshold
+        if self.category in thresholds:
+            return float(thresholds[self.category])
+        
+        # Default threshold: 0% (no failures allowed by default)
+        return 0.0
+    
+    def execute(self, context: TestContext) -> TestResult:
+        """Execute SQL test.
+        
+        Args:
+            context: Test execution context
+            
+        Returns:
+            Test result
+        """
+        try:
+            # Get failure threshold for this test
+            threshold = self.get_failure_threshold(context)
+            
+            # Inject threshold and database into SQL query
+            final_query = self.sql_query
+            if '{FAILURE_THRESHOLD}' in final_query:
+                final_query = final_query.replace('{FAILURE_THRESHOLD}', str(threshold))
+            if '{DATABASE}' in final_query:
+                final_query = final_query.replace('{DATABASE}', context.databases["source"])
+            
+            # Execute the SQL query using the existing session from context
+            df = context.session.sql(final_query).collect()
+            
+            # Process results based on consistent format
+            if len(df) == 0:
+                return TestResult(
+                    test_name=self.name,
+                    test_description=self.description,
+                    status=TestStatus.ERROR,
+                    error_message="No data returned from SQL test"
+                )
+            
+            # Extract result columns
+            row = df[0]
+            
+            # Required columns in consistent format
+            total_tested = getattr(row, 'TOTAL_TESTED', 0)
+            failed_records = getattr(row, 'FAILED_RECORDS', 0)
+            pass_fail_status = getattr(row, 'PASS_FAIL_STATUS', 'FAIL')
+            failure_threshold_used = getattr(row, 'FAILURE_THRESHOLD', threshold)
+            actual_failure_rate = getattr(row, 'ACTUAL_FAILURE_RATE', 0.0)
+            failure_details = getattr(row, 'FAILURE_DETAILS', '')
+            
+            # Convert pass/fail status to TestStatus
+            if pass_fail_status.upper() == 'PASS':
+                status = TestStatus.PASSED
+            elif pass_fail_status.upper() == 'FAIL':
+                status = TestStatus.FAILED
+            else:
+                status = TestStatus.ERROR
+            
+            # Calculate failure rate if not provided
+            if actual_failure_rate == 0.0 and total_tested > 0:
+                actual_failure_rate = (failed_records / total_tested) * 100.0
+            
+            return TestResult(
+                test_name=self.name,
+                test_description=self.description,
+                status=status,
+                total_tested=total_tested,
+                failed_records=failed_records,
+                failure_rate=actual_failure_rate,
+                failure_details=failure_details,
+                metadata={
+                    'failure_threshold_used': failure_threshold_used
+                }
+            )
+            
+        except Exception as e:
+            return TestResult(
+                test_name=self.name,
+                test_description=self.description,
+                status=TestStatus.ERROR,
+                error_message=f"SQL execution failed: {str(e)}"
+            )
+    
+    @staticmethod
+    def build_zero_failure_query(base_query: str, test_name: str, test_description: str) -> str:
+        """Build a query for zero-failure pattern tests.
+        
+        Args:
+            base_query: Base SQL query that returns failure records
+            test_name: Name of the test
+            test_description: Description of the test
+            
+        Returns:
+            SQL query with consistent output format
+        """
+        return f"""
+        WITH test_results AS (
+            {base_query}
+        ),
+        summary AS (
+            SELECT 
+                COUNT(*) as failed_records,
+                -- Assume total tested is derived from a separate count query or provided
+                -- This will need to be customized per test
+                0 as total_tested
+            FROM test_results
+        )
+        SELECT 
+            '{test_name}' AS test_name,
+            '{test_description}' AS test_description,
+            s.total_tested,
+            s.failed_records,
+            CASE WHEN s.failed_records = 0 THEN 'PASS' ELSE 'FAIL' END AS pass_fail_status,
+            0.0 AS failure_threshold,
+            CASE 
+                WHEN s.total_tested > 0 THEN (s.failed_records::FLOAT / s.total_tested::FLOAT * 100.0)
+                ELSE 0.0
+            END AS actual_failure_rate,
+            CASE 
+                WHEN s.failed_records = 0 THEN 'All validations passed'
+                ELSE s.failed_records || ' validation failures found'
+            END AS failure_details,
+            CURRENT_TIMESTAMP() AS execution_timestamp
+        FROM summary s
+        """
+    
+    @staticmethod
+    def build_threshold_query(base_query: str, test_name: str, test_description: str, 
+                            threshold_column: str = 'failure_rate') -> str:
+        """Build a query for threshold-based pattern tests.
+        
+        Args:
+            base_query: Base SQL query that calculates metrics
+            test_name: Name of the test
+            test_description: Description of the test
+            threshold_column: Column name containing the metric to compare against threshold
+            
+        Returns:
+            SQL query with threshold comparison and consistent output format
+        """
+        return f"""
+        WITH test_results AS (
+            {base_query}
+        )
+        SELECT 
+            '{test_name}' AS test_name,
+            '{test_description}' AS test_description,
+            tr.total_tested,
+            tr.failed_records,
+            CASE 
+                WHEN tr.{threshold_column} <= {{FAILURE_THRESHOLD}} THEN 'PASS' 
+                ELSE 'FAIL' 
+            END AS pass_fail_status,
+            {{FAILURE_THRESHOLD}} AS failure_threshold,
+            tr.{threshold_column} AS actual_failure_rate,
+            CASE 
+                WHEN tr.{threshold_column} <= {{FAILURE_THRESHOLD}} THEN 'Failure rate within acceptable threshold'
+                ELSE 'Failure rate exceeds threshold: ' || tr.{threshold_column} || '% > ' || {{FAILURE_THRESHOLD}} || '%'
+            END AS failure_details,
+            CURRENT_TIMESTAMP() AS execution_timestamp
+        FROM test_results tr
+        """
 
 
 class TestSuite:

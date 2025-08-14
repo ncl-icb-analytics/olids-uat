@@ -298,13 +298,15 @@ def display_test_list(config: Config, output_format: str = "table"):
     console.print(suite_table)
 
 
-def display_test_results(results: List[TestResult], output_format: str = "table", export_file: Optional[Path] = None, show_passes: bool = False):
+def display_test_results(results: List[TestResult], output_format: str = "table", export_file: Optional[Path] = None, show_passes: bool = False, hide_details: bool = False):
     """Display test results.
     
     Args:
         results: List of test results
         output_format: Output format (table, json, csv)
         export_file: Optional file to export results
+        show_passes: Whether to show details for passed tests
+        hide_details: Whether to hide the test details section
     """
     if output_format == "json":
         results_data = {
@@ -352,7 +354,10 @@ def display_test_results(results: List[TestResult], output_format: str = "table"
     # Table format
     _display_results_summary(results)
     _display_results_table(results)
-    _display_error_details(results, show_passes=show_passes)
+    
+    # Only show test details if not hidden
+    if not hide_details:
+        _display_error_details(results, show_passes=show_passes)
     
     if export_file:
         # For table format, export as JSON
@@ -448,13 +453,19 @@ def _display_results_table(results: List[TestResult]):
             "skipped": "[yellow]SKIP[/yellow]",
         }.get(result.status.value, result.status.value.upper())
         
+        # Handle execution time display for parallel vs sequential modes
+        if result.execution_time is None:
+            time_display = "N/A"  # Parallel mode - individual times not meaningful
+        else:
+            time_display = f"{result.execution_time:.2f}"
+        
         table.add_row(
             result.test_name,
             status_text,
             str(result.total_tested),
             str(result.failed_records),
             f"{result.success_rate:.1f}%",
-            f"{result.execution_time:.2f}"
+            time_display
         )
     
     console.print(table)

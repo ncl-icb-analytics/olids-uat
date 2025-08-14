@@ -34,8 +34,13 @@ console = Console()
     is_flag=True,
     help="Show details for passed tests in addition to failures"
 )
+@click.option(
+    "--hide-details",
+    is_flag=True,
+    help="Hide the test details section (only show summary and results table)"
+)
 @click.pass_context
-def run_command(ctx: click.Context, test_names: tuple, parallel: bool, output: str, export: Optional[Path], show_passes: bool):
+def run_command(ctx: click.Context, test_names: tuple, parallel: bool, output: str, export: Optional[Path], show_passes: bool, hide_details: bool):
     """Run tests. 
     
     Usage:
@@ -86,7 +91,7 @@ def run_command(ctx: click.Context, test_names: tuple, parallel: bool, output: s
                 console.print("[yellow]Parallel execution enabled[/yellow]")
             results = runner.run_tests(list(test_names), parallel=parallel, show_progress=True, suite_name="selected tests")
         
-        display_test_results(results, output, export, show_passes=show_passes)
+        display_test_results(results, output, export, show_passes=show_passes, hide_details=hide_details)
         
     except Exception as e:
         if verbose:

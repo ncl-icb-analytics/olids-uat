@@ -99,7 +99,7 @@ class TestRunner:
         return list(self._test_suites.keys())
     
     def run_test(self, test_name: str, show_progress: bool = True) -> TestResult:
-        """Run a single test.
+        """Run a single test with its own connection.
         
         Args:
             test_name: Name of test to run
@@ -131,13 +131,33 @@ class TestRunner:
                     "tests": self.env_config.schemas.tests,
                 },
                 session=conn.get_session(),
-                config={}
+                config={},
+                progress_callback=None  # No progress callback for sequential mode
             )
             
             # Tests now handle their own progress indicators
             result = test.run(context)
             
             return result
+    
+    def _run_test_with_context(self, test_name: str, context: TestContext) -> TestResult:
+        """Run a single test with provided context (shared connection).
+        
+        Args:
+            test_name: Name of test to run
+            context: Test execution context with shared session
+            
+        Returns:
+            Test result
+            
+        Raises:
+            KeyError: If test not found
+        """
+        if test_name not in self._tests:
+            raise KeyError(f"Test '{test_name}' not found")
+        
+        test = self._tests[test_name]
+        return test.run(context)
     
     def run_test_suite(self, suite_name: str, parallel: bool = False, show_progress: bool = True) -> List[TestResult]:
         """Run a test suite.
@@ -182,7 +202,7 @@ class TestRunner:
             return self._run_tests_sequential(test_names, show_progress, suite_name)
     
     def _run_tests_sequential(self, test_names: List[str], show_progress: bool, suite_name: str = "tests") -> List[TestResult]:
-        """Run tests sequentially.
+        """Run tests sequentially with shared connection.
         
         Args:
             test_names: List of test names to run
@@ -193,29 +213,51 @@ class TestRunner:
         """
         results = []
         
-        if show_progress:
-            import sys
-            print(f"Running {suite_name}")
-            print(f"Running {len(test_names)} tests")
-            for i, test_name in enumerate(test_names):
-                sys.stdout.write(f"\r  [{i+1}/{len(test_names)}] {test_name}")
-                sys.stdout.flush()
-                result = self.run_test(test_name, show_progress=False)
-                results.append(result)
-                # Clear the line completely and show completion
-                spaces = " " * 80  # Clear any remaining characters
-                sys.stdout.write(f"\r  [{i+1}/{len(test_names)}] {test_name} - completed{spaces[:max(0, 80-len(test_name)-30)]}")
-                print()  # Move to next line
+        # Create single shared connection for all tests
+        with SnowflakeConnection(self.env_config) as conn:
+            context = TestContext(
+                environment=self.environment,
+                databases={
+                    "source": self.env_config.databases.source,
+                    "terminology": self.env_config.databases.terminology,
+                    "results": self.env_config.databases.results,
+                    "dictionary": self.env_config.databases.dictionary,
+                },
+                schemas={
+                    "masked": self.env_config.schemas.masked,
+                    "terminology": self.env_config.schemas.terminology,
+                    "tests": self.env_config.schemas.tests,
+                },
+                session=conn.get_session(),
+                config={},
+                progress_callback=None  # No progress callback for sequential mode
+            )
             
-            # Show total SQL queries logged at the end
-            logger = get_sql_logger()
-            if hasattr(logger, 'query_counter') and logger.query_counter > 0:
-                print(f"SQL queries logged: {logger.query_counter} queries saved to {logger.output_dir}")
-            print()  # Extra line before results
-        else:
-            for test_name in test_names:
-                result = self.run_test(test_name, show_progress=False)
-                results.append(result)
+            if show_progress:
+                import sys
+                print(f"Running {suite_name}")
+                print(f"Running {len(test_names)} tests")
+                for i, test_name in enumerate(test_names):
+                    sys.stdout.write(f"\r  [{i+1}/{len(test_names)}] {test_name}")
+                    sys.stdout.flush()
+                    test = self._tests[test_name]
+                    result = test.run(context)
+                    results.append(result)
+                    # Clear the line completely and show completion
+                    spaces = " " * 80  # Clear any remaining characters
+                    sys.stdout.write(f"\r  [{i+1}/{len(test_names)}] {test_name} - completed{spaces[:max(0, 80-len(test_name)-30)]}")
+                    print()  # Move to next line
+                
+                # Show total SQL queries logged at the end
+                logger = get_sql_logger()
+                if hasattr(logger, 'query_counter') and logger.query_counter > 0:
+                    print(f"SQL queries logged: {logger.query_counter} queries saved to {logger.output_dir}")
+                print()  # Extra line before results
+            else:
+                for test_name in test_names:
+                    test = self._tests[test_name]
+                    result = test.run(context)
+                    results.append(result)
         
         return results
     
@@ -244,29 +286,8 @@ class TestRunner:
         if show_progress:
             results = parallel_runner.run_all(test_suites)
         else:
-            # Fall back to simple parallel execution without progress
-            max_workers = min(self.env_config.execution.parallel_workers, len(test_names))
-            results = []
-            
-            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-                future_to_test = {
-                    executor.submit(self.run_test, test_name, False): test_name
-                    for test_name in test_names
-                }
-                
-                for future in concurrent.futures.as_completed(future_to_test):
-                    test_name = future_to_test[future]
-                    try:
-                        result = future.result()
-                        results.append(result)
-                    except Exception as e:
-                        error_result = TestResult(
-                            test_name=test_name,
-                            test_description=f"Test {test_name}",
-                            status=TestStatus.ERROR,
-                            error_message=str(e)
-                        )
-                        results.append(error_result)
+            # Use parallel runner without progress to maintain shared connection
+            results = parallel_runner.run_all(test_suites)
         
         # Sort results to match original order
         test_order = {name: i for i, name in enumerate(test_names)}
@@ -284,8 +305,8 @@ class TestRunner:
         Returns:
             List of test results
         """
-        if parallel and show_progress:
-            # Use enhanced parallel runner for "run all" with better suite organization
+        if parallel:
+            # Use parallel runner for true parallel execution
             from .parallel_runner import ParallelTestRunner
             
             parallel_runner = ParallelTestRunner(
@@ -298,14 +319,11 @@ class TestRunner:
             for test_name, test_instance in self._tests.items():
                 test_suites[test_name] = [(test_name, test_instance)]
             
-            # Debug: print what suites we're running
-            # self.console.print(f"[dim]Debug: Running suites: {list(test_suites.keys())}[/dim]")
-            
             return parallel_runner.run_all(test_suites)
         else:
-            # Fall back to simple execution
+            # Use sequential execution without chunking
             test_names = list(self._tests.keys())
-            return self.run_tests(test_names, parallel=parallel, show_progress=show_progress)
+            return self.run_tests(test_names, parallel=False, show_progress=show_progress, suite_name="all tests")
     
     def get_summary(self, results: List[TestResult]) -> Dict[str, int]:
         """Get test execution summary.
