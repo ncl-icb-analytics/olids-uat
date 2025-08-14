@@ -6,11 +6,11 @@ import sys
 from typing import List, Dict, Any, Optional
 from snowflake.snowpark import Session
 
-from olids_testing.core.test_base import BaseTest, TestResult, TestStatus, TestContext
+from olids_testing.core.test_base import StandardSQLTest, TestResult, TestStatus, TestContext
 from olids_testing.core.sql_logger import log_sql_query
 
 
-class PersonPatternTest(BaseTest):
+class PersonPatternTest(StandardSQLTest):
     """Test to validate person patterns based on YAML configuration."""
     
     def __init__(self, config_path: Optional[str] = None):
@@ -19,9 +19,13 @@ class PersonPatternTest(BaseTest):
         Args:
             config_path: Path to person pattern mappings YAML file
         """
+        # Build SQL query placeholder
+        sql_query = self._build_query()
+        
         super().__init__(
             name="person_patterns",
             description="Validates person data patterns based on business rules",
+            sql_query=sql_query,
             category="person_validation"
         )
         
@@ -35,6 +39,23 @@ class PersonPatternTest(BaseTest):
         self.config_path = config_path
         self.pattern_config = self._load_pattern_config()
     
+    def _build_query(self) -> str:
+        """Build SQL query placeholder for person pattern tests."""
+        return """
+        -- Person pattern validation output
+        -- This is a placeholder - actual implementation uses Python logic for dynamic pattern testing
+        SELECT 
+            'person_patterns' AS test_name,
+            'Validates person data patterns based on business rules' AS test_description,
+            13 AS total_tested,
+            0 AS failed_records,  -- Will be calculated dynamically
+            'PASS' AS pass_fail_status,  -- Will be determined dynamically
+            0.0 AS failure_threshold,
+            0.0 AS actual_failure_rate,  -- Will be calculated dynamically
+            'Dynamic person pattern checking requires Python implementation' AS failure_details,
+            CURRENT_TIMESTAMP() AS execution_timestamp
+        """
+    
     def _load_pattern_config(self) -> Dict[str, Any]:
         """Load person pattern configuration from YAML file."""
         try:
@@ -45,13 +66,13 @@ class PersonPatternTest(BaseTest):
             return {}
     
     def execute(self, context: TestContext) -> TestResult:
-        """Execute all person pattern tests.
+        """Execute all person pattern tests using Python logic with consistent output.
         
         Args:
             context: Test execution context
             
         Returns:
-            TestResult with combined results from all pattern tests
+            TestResult with consistent format for person pattern validation
         """
         if not self.pattern_config:
             return TestResult(
@@ -124,7 +145,43 @@ class PersonPatternTest(BaseTest):
                             f"({result['failed_count']:,} failures out of {result['total_tested']:,} records)"
                         )
             
+            # Format as consistent output
+            failure_rate = (failed_tests / total_tests * 100) if total_tests > 0 else 0.0
             status = TestStatus.PASSED if failed_tests == 0 else TestStatus.FAILED
+            pass_fail_status = "PASS" if failed_tests == 0 else "FAIL"
+            
+            # Log the equivalent query for procedure deployment
+            equivalent_query = f"""
+            -- Output equivalent (would require dynamic SQL generation for all patterns)
+            SELECT 
+                'person_patterns' AS test_name,
+                'Validates person data patterns based on business rules' AS test_description,
+                {total_tests} AS total_tested,
+                {failed_tests} AS failed_records,
+                '{pass_fail_status}' AS pass_fail_status,
+                0.0 AS failure_threshold,
+                {failure_rate} AS actual_failure_rate,
+                '{failure_details[0].replace("'", "''")}' AS failure_details,
+                CURRENT_TIMESTAMP() AS execution_timestamp
+            """ if failure_details else f"""
+            -- Output equivalent
+            SELECT 
+                'person_patterns' AS test_name,
+                'Validates person data patterns based on business rules' AS test_description,
+                {total_tests} AS total_tested,
+                {failed_tests} AS failed_records,
+                '{pass_fail_status}' AS pass_fail_status,
+                0.0 AS failure_threshold,
+                {failure_rate} AS actual_failure_rate,
+                'All person pattern validations passed' AS failure_details,
+                CURRENT_TIMESTAMP() AS execution_timestamp
+            """
+            log_sql_query(
+                equivalent_query,
+                self.name,
+                "output_equivalent",
+                {"failed_tests": failed_tests, "test_type": "python_with_sql_output"}
+            )
             
             return TestResult(
                 test_name=self.name,
@@ -132,9 +189,10 @@ class PersonPatternTest(BaseTest):
                 status=status,
                 total_tested=total_tests,
                 failed_records=failed_tests,
-                failure_rate=(failed_tests / total_tests * 100) if total_tests > 0 else 0.0,
+                failure_rate=failure_rate,
                 failure_details="\n".join(failure_details) if failure_details else None,
                 metadata={
+                    'failure_threshold_used': 0.0,
                     'pattern_tests_executed': total_tests,
                     'pattern_tests_failed': failed_tests,
                     'detailed_results': all_test_results,

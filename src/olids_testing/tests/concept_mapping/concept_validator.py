@@ -6,11 +6,11 @@ import sys
 from typing import List, Dict, Any, Optional
 from snowflake.snowpark import Session
 
-from olids_testing.core.test_base import BaseTest, TestResult, TestStatus, TestContext
+from olids_testing.core.test_base import StandardSQLTest, TestResult, TestStatus, TestContext
 from olids_testing.core.sql_logger import log_sql_query
 
 
-class ConceptMappingTest(BaseTest):
+class ConceptMappingTest(StandardSQLTest):
     """Test to validate concept ID mappings through CONCEPT_MAP to CONCEPT tables."""
     
     def __init__(self, config_path: Optional[str] = None):
@@ -19,9 +19,13 @@ class ConceptMappingTest(BaseTest):
         Args:
             config_path: Path to concept mapping tests YAML file
         """
+        # Build SQL query placeholder
+        sql_query = self._build_query()
+        
         super().__init__(
             name="concept_mapping",
             description="Validates concept ID mappings from source tables through CONCEPT_MAP to CONCEPT",
+            sql_query=sql_query,
             category="concept_mapping"
         )
         
@@ -35,6 +39,23 @@ class ConceptMappingTest(BaseTest):
         self.config_path = config_path
         self.mapping_config = self._load_mapping_config()
     
+    def _build_query(self) -> str:
+        """Build SQL query placeholder for concept mapping tests."""
+        return """
+        -- Concept mapping validation output
+        -- This is a placeholder - actual implementation uses Python logic for dynamic concept mapping testing
+        SELECT 
+            'concept_mapping' AS test_name,
+            'Validates concept ID mappings from source tables through CONCEPT_MAP to CONCEPT' AS test_description,
+            28 AS total_tested,
+            0 AS failed_records,  -- Will be calculated dynamically
+            'PASS' AS pass_fail_status,  -- Will be determined dynamically
+            0.0 AS failure_threshold,
+            0.0 AS actual_failure_rate,  -- Will be calculated dynamically
+            'Dynamic concept mapping checking requires Python implementation' AS failure_details,
+            CURRENT_TIMESTAMP() AS execution_timestamp
+        """
+    
     def _load_mapping_config(self) -> Dict[str, Any]:
         """Load concept mapping configuration from YAML file."""
         try:
@@ -45,13 +66,13 @@ class ConceptMappingTest(BaseTest):
             return {}
     
     def execute(self, context: TestContext) -> TestResult:
-        """Execute all concept mapping tests.
+        """Execute all concept mapping tests using Python logic with consistent output.
         
         Args:
             context: Test execution context
             
         Returns:
-            TestResult with combined results from all mapping tests
+            TestResult with consistent format for concept mapping validation
         """
         if not self.mapping_config:
             return TestResult(
@@ -190,7 +211,43 @@ class ConceptMappingTest(BaseTest):
                         
                         failure_details.append(f"  • {result['test_name']}: {', '.join(quality_issues)}")
             
+            # Format as consistent output
+            failure_rate = (failed_tests / total_tests * 100) if total_tests > 0 else 0.0
             status = TestStatus.PASSED if failed_tests == 0 else TestStatus.FAILED
+            pass_fail_status = "PASS" if failed_tests == 0 else "FAIL"
+            
+            # Log the equivalent query for procedure deployment
+            equivalent_query = f"""
+            -- Output equivalent (would require dynamic SQL generation for all concept mappings)
+            SELECT 
+                'concept_mapping' AS test_name,
+                'Validates concept ID mappings from source tables through CONCEPT_MAP to CONCEPT' AS test_description,
+                {total_tests} AS total_tested,
+                {failed_tests} AS failed_records,
+                '{pass_fail_status}' AS pass_fail_status,
+                0.0 AS failure_threshold,
+                {failure_rate} AS actual_failure_rate,
+                '{failure_details[0].replace("'", "''")}' AS failure_details,
+                CURRENT_TIMESTAMP() AS execution_timestamp
+            """ if failure_details else f"""
+            -- Output equivalent
+            SELECT 
+                'concept_mapping' AS test_name,
+                'Validates concept ID mappings from source tables through CONCEPT_MAP to CONCEPT' AS test_description,
+                {total_tests} AS total_tested,
+                {failed_tests} AS failed_records,
+                '{pass_fail_status}' AS pass_fail_status,
+                0.0 AS failure_threshold,
+                {failure_rate} AS actual_failure_rate,
+                'All concept mapping validations passed' AS failure_details,
+                CURRENT_TIMESTAMP() AS execution_timestamp
+            """
+            log_sql_query(
+                equivalent_query,
+                self.name,
+                "output_equivalent",
+                {"failed_tests": failed_tests, "test_type": "python_with_sql_output"}
+            )
             
             return TestResult(
                 test_name=self.name,
@@ -198,9 +255,10 @@ class ConceptMappingTest(BaseTest):
                 status=status,
                 total_tested=total_tests,
                 failed_records=failed_tests,
-                failure_rate=(failed_tests / total_tests * 100) if total_tests > 0 else 0.0,
+                failure_rate=failure_rate,
                 failure_details="\n".join(failure_details) if failure_details else None,
                 metadata={
+                    'failure_threshold_used': 0.0,
                     'concept_mapping_tests_executed': total_tests,
                     'concept_mapping_tests_failed': failed_tests,
                     'detailed_results': all_test_results,

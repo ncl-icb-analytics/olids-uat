@@ -82,3 +82,41 @@ test_config:
     timeout: 300
     priority: critical
     pattern_count: 13
+
+# Failure threshold configurations (as percentages)
+failure_thresholds:
+  
+  # Default thresholds by category
+  data_quality: 0.0        # No failures allowed for data quality tests
+  referential_integrity: 0.0  # No violations allowed for referential integrity
+  concept_mapping: 5.0     # Allow up to 5% concept mapping failures
+  person_patterns: 2.0     # Allow up to 2% business rule violations
+  
+  # Test-specific threshold overrides (overrides category defaults)
+  null_columns: 0.0        # No all-null columns allowed
+  empty_tables: 0.0        # No empty tables allowed
+  column_completeness: 5.0 # Allow up to 5% missing values for completeness checks
+  
+  # Environment-specific thresholds (can be overridden in environment configs)
+  environments:
+    dev:
+      data_quality: 10.0   # More lenient thresholds for dev environment
+      concept_mapping: 15.0
+      person_patterns: 10.0
+    uat:
+      data_quality: 2.0    # Moderate thresholds for UAT
+      concept_mapping: 8.0
+      person_patterns: 5.0
+    prod:
+      data_quality: 0.0    # Strict thresholds for production
+      concept_mapping: 1.0
+      person_patterns: 1.0
+  
+  # Individual completeness thresholds (used by column_completeness test)
+  completeness_rules:
+    "PATIENT.nhs_number_hash": 95.0
+    "PATIENT.birth_year": 98.0
+    "PATIENT.birth_month": 98.0
+    "ENCOUNTER.patient_id": 100.0
+    "OBSERVATION.patient_id": 100.0
+    "PERSON.id": 100.0

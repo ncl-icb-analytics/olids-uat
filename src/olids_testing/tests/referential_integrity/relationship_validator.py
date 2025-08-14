@@ -6,14 +6,14 @@ from typing import Dict, List, Optional, Tuple
 
 from snowflake.snowpark import Session
 
-from olids_testing.core.test_base import BaseTest, TestResult, TestStatus, TestContext
+from olids_testing.core.test_base import StandardSQLTest, TestResult, TestStatus, TestContext
 from olids_testing.core.sql_logger import log_sql_query
 
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeElapsedColumn
 
 
-class ReferentialIntegrityTest(BaseTest):
+class ReferentialIntegrityTest(StandardSQLTest):
     """Test to validate all foreign key relationships in the OLIDS database."""
     
     def __init__(self, mapping_file: Optional[Path] = None):
@@ -22,9 +22,13 @@ class ReferentialIntegrityTest(BaseTest):
         Args:
             mapping_file: Path to YAML file containing relationship mappings
         """
+        # Build SQL query placeholder
+        sql_query = self._build_query()
+        
         super().__init__(
             name="referential_integrity",
             description="Validates all 85 foreign key relationships in OLIDS database",
+            sql_query=sql_query,
             category="referential_integrity"
         )
         
@@ -55,6 +59,23 @@ class ReferentialIntegrityTest(BaseTest):
         self.mapping_file = mapping_file
         self.relationships = self._load_relationships()
     
+    def _build_query(self) -> str:
+        """Build SQL query placeholder for referential integrity tests."""
+        return """
+        -- Referential integrity validation output
+        -- This is a placeholder - actual implementation uses Python logic for dynamic relationship testing
+        SELECT 
+            'referential_integrity' AS test_name,
+            'Validates all 85 foreign key relationships in OLIDS database' AS test_description,
+            85 AS total_tested,
+            0 AS failed_records,  -- Will be calculated dynamically
+            'PASS' AS pass_fail_status,  -- Will be determined dynamically
+            0.0 AS failure_threshold,
+            0.0 AS actual_failure_rate,  -- Will be calculated dynamically
+            'Dynamic referential integrity checking requires Python implementation' AS failure_details,
+            CURRENT_TIMESTAMP() AS execution_timestamp
+        """
+    
     def _load_relationships(self) -> List[Dict]:
         """Load relationship mappings from YAML configuration.
         
@@ -80,13 +101,13 @@ class ReferentialIntegrityTest(BaseTest):
             raise ValueError(f"Failed to load relationship mappings from {self.mapping_file}: {e}")
     
     def execute(self, context: TestContext) -> TestResult:
-        """Execute the referential integrity validation.
+        """Execute the referential integrity validation using Python logic with consistent output.
         
         Args:
             context: Test execution context
             
         Returns:
-            TestResult with details about referential integrity violations
+            TestResult with consistent format for referential integrity violations
         """
         session = context.session
         source_db = context.databases["source"]
@@ -169,23 +190,65 @@ class ReferentialIntegrityTest(BaseTest):
                     if result['status'] == 'SKIPPED':
                         failure_details.append(f"  • {result['source_table']}.{result['foreign_key']}: {result['reason']}")
             
+            # Format as consistent output
+            failed_relationships = len([r for r in validation_results if r['status'] == 'VIOLATED'])
+            failure_rate = (failed_relationships / total_relationships * 100) if total_relationships > 0 else 0.0
+            
             # Determine test status
             if total_violations > 0:
                 status = TestStatus.FAILED
+                pass_fail_status = "FAIL"
             elif skipped_relationships == total_relationships:
                 status = TestStatus.ERROR  # All relationships were skipped
+                pass_fail_status = "ERROR"
             else:
                 status = TestStatus.PASSED
+                pass_fail_status = "PASS"
+            
+            if status != TestStatus.ERROR:
+                # Log the equivalent query for procedure deployment
+                equivalent_query = f"""
+                -- Output equivalent (would require dynamic SQL generation for all relationships)
+                SELECT 
+                    'referential_integrity' AS test_name,
+                    'Validates all 85 foreign key relationships in OLIDS database' AS test_description,
+                    {total_relationships} AS total_tested,
+                    {failed_relationships} AS failed_records,
+                    '{pass_fail_status}' AS pass_fail_status,
+                    0.0 AS failure_threshold,
+                    {failure_rate} AS actual_failure_rate,
+                    '{failure_details[0].replace("'", "''")}' AS failure_details,
+                    CURRENT_TIMESTAMP() AS execution_timestamp
+                """ if failure_details else f"""
+                -- Output equivalent
+                SELECT 
+                    'referential_integrity' AS test_name,
+                    'Validates all 85 foreign key relationships in OLIDS database' AS test_description,
+                    {total_relationships} AS total_tested,
+                    {failed_relationships} AS failed_records,
+                    '{pass_fail_status}' AS pass_fail_status,
+                    0.0 AS failure_threshold,
+                    {failure_rate} AS actual_failure_rate,
+                    'All referential integrity checks passed' AS failure_details,
+                    CURRENT_TIMESTAMP() AS execution_timestamp
+                """
+                log_sql_query(
+                    equivalent_query,
+                    self.name,
+                    "output_equivalent",
+                    {"failed_relationships": failed_relationships, "test_type": "python_with_sql_output"}
+                )
             
             return TestResult(
                 test_name=self.name,
                 test_description=self.description,
                 status=status,
                 total_tested=total_relationships,
-                failed_records=len([r for r in validation_results if r['status'] == 'VIOLATED']),
-                failure_rate=(len([r for r in validation_results if r['status'] == 'VIOLATED']) / total_relationships * 100) if total_relationships > 0 else 0.0,
+                failed_records=failed_relationships,
+                failure_rate=failure_rate,
                 failure_details="\n".join(failure_details) if failure_details else None,
                 metadata={
+                    'failure_threshold_used': 0.0,
                     'relationship_groups': self.relationship_groups,
                     'total_relationships': total_relationships,
                     'total_violations': total_violations,

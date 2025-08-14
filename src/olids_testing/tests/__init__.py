@@ -4,18 +4,20 @@ from .data_quality import AllNullColumnsTest, EmptyTablesTest, ColumnCompletenes
 from .person_patterns import PersonPatternTest
 from .concept_mapping import ConceptMappingTest
 from .referential_integrity import ReferentialIntegrityTest
+from olids_testing.core.global_validator import create_global_validator_from_legacy_test
 
-# Main test registry - these are included in "run all" 
+# Main test registry - all tests now use consistent SQL output format
+# Using global validator for complex tests, keeping individual classes for simple ones
 TEST_REGISTRY = {
     'null_columns': AllNullColumnsTest,
     'empty_tables': EmptyTablesTest,
     'column_completeness': ColumnCompletenessTest,
-    'referential_integrity': ReferentialIntegrityTest,
-    'person_patterns': PersonPatternTest,
-    'concept_mapping': ConceptMappingTest,
+    'referential_integrity': lambda: create_global_validator_from_legacy_test('referential_integrity'),
+    'person_patterns': lambda: create_global_validator_from_legacy_test('person_patterns'),
+    'concept_mapping': lambda: create_global_validator_from_legacy_test('concept_mapping'),
 }
 
-# No more individual test registry - all tests are in the main registry
+# All tests registry (same as main registry)
 ALL_TESTS_REGISTRY = TEST_REGISTRY
 
 # Category mappings
@@ -44,7 +46,7 @@ def get_test_class(test_name: str):
         test_name: Name of the test
         
     Returns:
-        Test class
+        Test class or test instance
         
     Raises:
         KeyError: If test name not found
@@ -52,7 +54,14 @@ def get_test_class(test_name: str):
     if test_name not in ALL_TESTS_REGISTRY:
         raise KeyError(f"Test '{test_name}' not found. Available tests: {list(ALL_TESTS_REGISTRY.keys())}")
     
-    return ALL_TESTS_REGISTRY[test_name]
+    test_class_or_factory = ALL_TESTS_REGISTRY[test_name]
+    
+    # If it's a lambda (factory function), call it to get the instance
+    if callable(test_class_or_factory) and hasattr(test_class_or_factory, '__name__') and test_class_or_factory.__name__ == '<lambda>':
+        return test_class_or_factory()
+    
+    # Otherwise, return the class
+    return test_class_or_factory
 
 def list_tests():
     """Get list of main test names (for 'run all' command)."""
